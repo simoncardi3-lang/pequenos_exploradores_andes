@@ -1,5 +1,5 @@
 // ============================================================================
-// PANEL ADMINISTRATIVO CON GESTIÓN DE LOGOS, TALLERES Y PARTICIPANTES
+// PANEL ADMINISTRATIVO — TALLERES CREA (UNIANDES)
 // ============================================================================
 
 import { supabase } from './supabase.js';
@@ -90,7 +90,7 @@ export function initAdminModule(state, refreshAllData, notifyBanner) {
         precioInput.disabled = true;
       } else {
         precioInput.disabled = false;
-        if (Number(precioInput.value) === 0) precioInput.value = 0;
+        if (Number(precioInput.value) === 0) precioInput.value = 25000;
       }
     });
   }
@@ -170,40 +170,6 @@ export function initAdminModule(state, refreshAllData, notifyBanner) {
       await supabase.from('configuracion').update({ qr_nequi_url: '' }).eq('id', 1);
       await refreshAllData();
       notifyBanner('Imagen de QR eliminada.', 'success');
-    });
-  }
-
-  const inpLogo = document.getElementById('inp-logo-file');
-  if (inpLogo) {
-    inpLogo.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (file) await uploadLogoFile(file, refreshAllData, notifyBanner);
-    });
-  }
-
-  const btnRemLogo = document.getElementById('btn-remove-logo');
-  if (btnRemLogo) {
-    btnRemLogo.addEventListener('click', async () => {
-      await supabase.from('configuracion').update({ logo_url: '' }).eq('id', 1);
-      await refreshAllData();
-      notifyBanner('Logotipo superior restaurado.', 'success');
-    });
-  }
-
-  const inpHeroLogo = document.getElementById('inp-hero-logo-file');
-  if (inpHeroLogo) {
-    inpHeroLogo.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (file) await uploadHeroLogoFile(file, refreshAllData, notifyBanner);
-    });
-  }
-
-  const btnRemHeroLogo = document.getElementById('btn-remove-hero-logo');
-  if (btnRemHeroLogo) {
-    btnRemHeroLogo.addEventListener('click', async () => {
-      await supabase.from('configuracion').update({ hero_logo_url: '' }).eq('id', 1);
-      await refreshAllData();
-      notifyBanner('Logotipo central restaurado al diseño por defecto.', 'success');
     });
   }
 }
@@ -295,7 +261,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
   if (!container) return;
 
   if (state.salidas.length === 0) {
-    container.innerHTML = `<div class="state-box"><p>No has creado ningún taller todavía. Haz clic en "+ Crear Nuevo Taller".</p></div>`;
+    container.innerHTML = `<div class="state-box"><p>No has creado ningún taller todavía.</p></div>`;
     return;
   }
 
@@ -376,7 +342,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
                 data-copy="${escapeHTML(textoCopiar)}"
                 ${filasParticipantes.length === 0 ? 'disabled' : ''}
               >
-                Copiar lista completa (Formato con comas)
+                Copiar lista completa
               </button>
             </div>
             ${
@@ -384,7 +350,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
                 ? `<ol class="enumerated-list">${filasParticipantes
                     .map((f) => `<li>${escapeHTML(f.vistaCorta)}</li>`)
                     .join('')}</ol>`
-                : `<p class="form-hint">Aún no hay asistentes inscritos en este taller.</p>`
+                : `<p class="form-hint">Aún no hay inscritos en este taller.</p>`
             }
           </div>
         </div>
@@ -401,9 +367,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
 
   container.querySelectorAll('.btn-del-salida').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      const ok = window.confirm(
-        `¿Seguro que deseas eliminar el taller "${btn.dataset.nombre}" y todas sus inscripciones asociadas?`
-      );
+      const ok = window.confirm(`¿Seguro que deseas eliminar el taller "${btn.dataset.nombre}"?`);
       if (!ok) return;
       const { error } = await supabase.from('salidas').delete().eq('id', btn.dataset.id);
       if (error) {
@@ -419,7 +383,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
     btn.addEventListener('click', async () => {
       await copyToClipboard(btn.dataset.copy);
       const original = btn.textContent;
-      btn.textContent = '¡Lista copiada al portapapeles!';
+      btn.textContent = '¡Lista copiada!';
       setTimeout(() => {
         btn.textContent = original;
       }, 2200);
@@ -465,7 +429,7 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">No hay inscripciones que coincidan con los filtros.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">No hay inscripciones que coincidan.</td></tr>`;
     return;
   }
 
@@ -483,7 +447,7 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
               <div>
                 • <strong>${escapeHTML(p.nombre)}</strong> (${p.edad} años)${extrasStr}
               </div>
-              <button type="button" class="btn btn-danger-ghost btn-sm btn-del-single-part" data-insc-id="${escapeHTML(insc.id)}" data-part-idx="${pIdx}" title="Quitar este participante">
+              <button type="button" class="btn btn-danger-ghost btn-sm btn-del-single-part" data-insc-id="${escapeHTML(insc.id)}" data-part-idx="${pIdx}" title="Quitar">
                 &times; Quitar
               </button>
             </div>
@@ -496,11 +460,11 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
           <td><strong>${escapeHTML(insc.codigo)}</strong></td>
           <td>${escapeHTML(salida?.nombre || 'Taller eliminado')}</td>
           <td>
-            ${insc.acudiente_nombre && insc.acudiente_nombre !== 'Sin acudiente' ? `<strong>${escapeHTML(insc.acudiente_nombre)}</strong><br/>` : '<span style="color:var(--text-muted);">Sin responsable</span>'}
-            ${insc.whatsapp && insc.whatsapp !== 'Sin teléfono' ? `<span>WA: ${escapeHTML(insc.whatsapp)}</span>` : ''}
+            ${insc.acudiente_nombre && insc.acudiente_nombre !== 'Sin acudiente' ? `<strong>${escapeHTML(insc.acudiente_nombre)}</strong><br/>` : ''}
+            ${insc.whatsapp ? `<span>WA: ${escapeHTML(insc.whatsapp)}</span>` : ''}
             ${insc.correo ? `<br/><small>${escapeHTML(insc.correo)}</small>` : ''}
           </td>
-          <td>${partHtml || '<span style="color:var(--text-muted);">Sin asistentes activos</span>'}</td>
+          <td>${partHtml || '<span style="color:var(--text-muted);">Sin participantes</span>'}</td>
           <td><strong>${formatCOP(insc.total_pagar)}</strong></td>
           <td>
             <span class="status-chip st-${escapeHTML(insc.estado)}">${escapeHTML(STATUS_NAMES[insc.estado] || insc.estado)}</span>
@@ -509,12 +473,12 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
             <div class="table-actions">
               ${
                 insc.estado !== 'confirmada'
-                  ? `<button type="button" class="btn btn-primary btn-sm btn-confirm-pago" data-id="${escapeHTML(insc.id)}" data-valor="${insc.total_pagar}">Aprobar y Confirmar</button>`
+                  ? `<button type="button" class="btn btn-primary btn-sm btn-confirm-pago" data-id="${escapeHTML(insc.id)}" data-valor="${insc.total_pagar}">Aprobar</button>`
                   : ''
               }
               ${
                 insc.estado !== 'cancelada'
-                  ? `<button type="button" class="btn btn-danger-ghost btn-sm btn-cancel-insc" data-id="${escapeHTML(insc.id)}">Cancelar todo</button>`
+                  ? `<button type="button" class="btn btn-danger-ghost btn-sm btn-cancel-insc" data-id="${escapeHTML(insc.id)}">Cancelar</button>`
                   : ''
               }
             </div>
@@ -538,7 +502,7 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
       if (error) {
         notifyBanner(`Error al confirmar: ${error.message}`, 'error');
       } else {
-        notifyBanner('Inscripción confirmada y cupo actualizado.', 'success');
+        notifyBanner('Inscripción confirmada.', 'success');
         await refreshAllData();
       }
     });
@@ -546,7 +510,7 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
 
   tbody.querySelectorAll('.btn-cancel-insc').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!window.confirm('¿Deseas cancelar toda esta inscripción y liberar todos sus cupos?')) return;
+      if (!window.confirm('¿Deseas cancelar toda esta inscripción y liberar sus cupos?')) return;
       
       const { error } = await supabase
         .from('inscripciones')
@@ -573,9 +537,7 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
       const participantesActuales = [...(inscripcionActual.participantes || [])];
       
       if (participantesActuales.length <= 1) {
-        if (!window.confirm('Este registro solo tiene un participante. Si lo quitas, la inscripción quedará sin asistentes. ¿Deseas cancelar la inscripción completa?')) {
-          return;
-        }
+        if (!window.confirm('Este registro tiene un solo participante. ¿Deseas cancelar la inscripción completa?')) return;
         
         const { error } = await supabase
           .from('inscripciones')
@@ -583,9 +545,9 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
           .eq('id', inscId);
 
         if (error) {
-          notifyBanner(`Error al cancelar: ${error.message}`, 'error');
+          notifyBanner(`Error: ${error.message}`, 'error');
         } else {
-          notifyBanner('Inscripción cancelada por quedarse sin asistentes.', 'success');
+          notifyBanner('Inscripción cancelada.', 'success');
           await refreshAllData();
         }
         return;
@@ -599,9 +561,9 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
         .eq('id', inscId);
 
       if (error) {
-        notifyBanner(`Error al quitar participante: ${error.message}`, 'error');
+        notifyBanner(`Error: ${error.message}`, 'error');
       } else {
-        notifyBanner('Participante removido de la inscripción correctamente.', 'success');
+        notifyBanner('Participante removido.', 'success');
         await refreshAllData();
       }
     });
@@ -613,7 +575,7 @@ function openSalidaModal(salida = null) {
   if (!modal) return;
 
   const titleEl = document.getElementById('modal-salida-title');
-  if (titleEl) titleEl.textContent = salida ? 'Editar Taller' : 'Crear Nuevo Taller';
+  if (titleEl) titleEl.textContent = salida ? 'Editar Taller' : 'Nuevo Taller';
 
   const setVal = (id, val) => {
     const el = document.getElementById(id);
@@ -634,11 +596,11 @@ function openSalidaModal(salida = null) {
 
   const precioInp = document.getElementById('sal-precio');
   if (precioInp) {
-    precioInp.value = esSinCosto ? 0 : (salida?.precio_familia ?? 0);
+    precioInp.value = esSinCosto ? 0 : (salida?.precio_familia ?? 25000);
     precioInp.disabled = esSinCosto;
   }
 
-  setVal('sal-cupo', salida?.cupo_maximo ?? 20);
+  setVal('sal-cupo', salida?.cupo_maximo ?? 25);
   setVal('sal-estado', salida?.estado || 'abierta');
   setVal('sal-recomendaciones', salida?.recomendaciones || '');
   
@@ -657,25 +619,6 @@ function openSalidaModal(salida = null) {
 
   const chkAcudLista = document.getElementById('sal-incluir-acudientes-lista');
   if (chkAcudLista) chkAcudLista.checked = Boolean(salida?.incluir_acudientes_lista);
-
-  let incluirEdadCheckbox = document.getElementById('sal-incluir-edad');
-  if (!incluirEdadCheckbox) {
-    const optionsPanel = document.querySelector('#modal-salida .options-panel');
-    if (optionsPanel) {
-      const div = document.createElement('div');
-      div.innerHTML = `
-        <label class="checkbox-label" style="margin-top:10px;">
-          <input type="checkbox" id="sal-incluir-edad" checked />
-          <span>Solicitar y registrar la edad del asistente</span>
-        </label>
-      `;
-      optionsPanel.appendChild(div);
-      incluirEdadCheckbox = document.getElementById('sal-incluir-edad');
-    }
-  }
-  if (incluirEdadCheckbox) {
-    incluirEdadCheckbox.checked = salida ? salida.incluir_edad !== false : true;
-  }
 
   modalCustomFields = Array.isArray(salida?.campos_personalizados)
     ? JSON.parse(JSON.stringify(salida.campos_personalizados))
@@ -701,7 +644,7 @@ function renderModalCustomFields() {
   if (!container) return;
 
   if (modalCustomFields.length === 0) {
-    container.innerHTML = `<p class="form-hint">No hay campos personalizados adicionales por asistente.</p>`;
+    container.innerHTML = `<p class="form-hint">No hay campos personalizados.</p>`;
     return;
   }
 
@@ -711,18 +654,9 @@ function renderModalCustomFields() {
       <div class="custom-field-item" style="flex-wrap:wrap; gap:8px;">
         <strong>${escapeHTML(f.label)}</strong>
         <div class="custom-field-controls" style="flex-wrap:wrap; gap:12px;">
-          <label class="checkbox-label">
-            <input type="checkbox" class="cf-vis" data-idx="${idx}" ${f.visible !== false ? 'checked' : ''} />
-            <span>Mostrar</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" class="cf-req" data-idx="${idx}" ${f.required ? 'checked' : ''} />
-            <span>Obligatorio</span>
-          </label>
-          <label class="checkbox-label" title="Marca esto si deseas que este dato aparezca en la lista copiada al portapapeles">
-            <input type="checkbox" class="cf-copy" data-idx="${idx}" ${f.incluir_al_copiar !== false ? 'checked' : ''} />
-            <span>Incluir al copiar</span>
-          </label>
+          <label class="checkbox-label"><input type="checkbox" class="cf-vis" data-idx="${idx}" ${f.visible !== false ? 'checked' : ''} /> Mostrar</label>
+          <label class="checkbox-label"><input type="checkbox" class="cf-req" data-idx="${idx}" ${f.required ? 'checked' : ''} /> Obligatorio</label>
+          <label class="checkbox-label"><input type="checkbox" class="cf-copy" data-idx="${idx}" ${f.incluir_al_copiar !== false ? 'checked' : ''} /> Copiar</label>
           <button type="button" class="btn btn-danger-ghost btn-sm cf-del" data-idx="${idx}">Quitar</button>
         </div>
       </div>
@@ -731,19 +665,13 @@ function renderModalCustomFields() {
     .join('');
 
   container.querySelectorAll('.cf-vis').forEach((chk) => {
-    chk.addEventListener('change', (e) => {
-      modalCustomFields[Number(e.target.dataset.idx)].visible = e.target.checked;
-    });
+    chk.addEventListener('change', (e) => { modalCustomFields[Number(e.target.dataset.idx)].visible = e.target.checked; });
   });
   container.querySelectorAll('.cf-req').forEach((chk) => {
-    chk.addEventListener('change', (e) => {
-      modalCustomFields[Number(e.target.dataset.idx)].required = e.target.checked;
-    });
+    chk.addEventListener('change', (e) => { modalCustomFields[Number(e.target.dataset.idx)].required = e.target.checked; });
   });
   container.querySelectorAll('.cf-copy').forEach((chk) => {
-    chk.addEventListener('change', (e) => {
-      modalCustomFields[Number(e.target.dataset.idx)].incluir_al_copiar = e.target.checked;
-    });
+    chk.addEventListener('change', (e) => { modalCustomFields[Number(e.target.dataset.idx)].incluir_al_copiar = e.target.checked; });
   });
   container.querySelectorAll('.cf-del').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -756,7 +684,6 @@ function renderModalCustomFields() {
 async function saveSalidaFromModal(refreshAllData, notifyBanner) {
   const id = document.getElementById('sal-id')?.value || '';
   const esSinCosto = document.getElementById('sal-gratuita')?.checked || false;
-  const incluirEdadCheckbox = document.getElementById('sal-incluir-edad');
   const fechaCierreVal = document.getElementById('sal-fecha-cierre')?.value;
 
   const payload = {
@@ -767,16 +694,14 @@ async function saveSalidaFromModal(refreshAllData, notifyBanner) {
     ubicacion: document.getElementById('sal-ubicacion')?.value.trim() || '',
     punto_encuentro: document.getElementById('sal-punto')?.value.trim() || '',
     es_gratuita: esSinCosto,
-    precio_familia: esSinCosto ? 0 : Number(document.getElementById('sal-precio')?.value || 0),
-    cupo_maximo: Number(document.getElementById('sal-cupo')?.value || 20),
+    precio_familia: esSinCosto ? 0 : Number(document.getElementById('sal-precio')?.value || 25000),
+    cupo_maximo: Number(document.getElementById('sal-cupo')?.value || 25),
     estado: document.getElementById('sal-estado')?.value || 'abierta',
     recomendaciones: document.getElementById('sal-recomendaciones')?.value.trim() || '',
     fecha_cierre: fechaCierreVal ? new Date(fechaCierreVal).toISOString() : null,
     requiere_acudiente: document.getElementById('sal-requiere-acudiente')?.checked ?? true,
     solicitar_correo: document.getElementById('sal-solicitar-correo')?.checked ?? false,
-    permitir_acompanantes: false,
     incluir_acudientes_lista: document.getElementById('sal-incluir-acudientes-lista')?.checked ?? false,
-    incluir_edad: incluirEdadCheckbox ? incluirEdadCheckbox.checked : true,
     campos_personalizados: modalCustomFields,
     campos_acompanantes: []
   };
@@ -793,10 +718,10 @@ async function saveSalidaFromModal(refreshAllData, notifyBanner) {
     if (error) throw error;
 
     closeSalidaModal();
-    notifyBanner(id ? 'Taller actualizado correctamente.' : 'Nuevo taller publicado.', 'success');
+    notifyBanner(id ? 'Taller actualizado.' : 'Taller creado.', 'success');
     await refreshAllData();
   } catch (err) {
-    notifyBanner(`Error al guardar taller: ${err.message}`, 'error');
+    notifyBanner(`Error al guardar: ${err.message}`, 'error');
   } finally {
     if (btn) btn.disabled = false;
   }
@@ -826,34 +751,6 @@ function populateConfigForm(state) {
     if (empty) empty.classList.remove('hidden');
     if (btnRemove) btnRemove.classList.add('hidden');
   }
-
-  const logoImg = document.getElementById('admin-logo-preview-img');
-  const logoEmpty = document.getElementById('admin-logo-empty');
-  const btnRemoveLogo = document.getElementById('btn-remove-logo');
-
-  if (state.config?.logo_url) {
-    if (logoImg) { logoImg.src = state.config.logo_url; logoImg.classList.remove('hidden'); }
-    if (logoEmpty) logoEmpty.classList.add('hidden');
-    if (btnRemoveLogo) btnRemoveLogo.classList.remove('hidden');
-  } else {
-    if (logoImg) logoImg.classList.add('hidden');
-    if (logoEmpty) logoEmpty.classList.remove('hidden');
-    if (btnRemoveLogo) btnRemoveLogo.classList.add('hidden');
-  }
-
-  const heroLogoImg = document.getElementById('admin-hero-logo-preview-img');
-  const heroLogoEmpty = document.getElementById('admin-hero-logo-empty');
-  const btnRemoveHeroLogo = document.getElementById('btn-remove-hero-logo');
-
-  if (state.config?.hero_logo_url) {
-    if (heroLogoImg) { heroLogoImg.src = state.config.hero_logo_url; heroLogoImg.classList.remove('hidden'); }
-    if (heroLogoEmpty) heroLogoEmpty.classList.add('hidden');
-    if (btnRemoveHeroLogo) btnRemoveHeroLogo.classList.remove('hidden');
-  } else {
-    if (heroLogoImg) heroLogoImg.classList.add('hidden');
-    if (heroLogoEmpty) heroLogoEmpty.classList.remove('hidden');
-    if (btnRemoveHeroLogo) btnRemoveHeroLogo.classList.add('hidden');
-  }
 }
 
 async function saveCommunityConfig(refreshAllData, notifyBanner) {
@@ -866,9 +763,9 @@ async function saveCommunityConfig(refreshAllData, notifyBanner) {
 
   const { error } = await supabase.from('configuracion').update(payload).eq('id', 1);
   if (error) {
-    notifyBanner(`Error guardando configuración: ${error.message}`, 'error');
+    notifyBanner(`Error: ${error.message}`, 'error');
   } else {
-    notifyBanner('Configuración actualizada.', 'success');
+    notifyBanner('Configuración guardada.', 'success');
     await refreshAllData();
   }
 }
@@ -876,7 +773,7 @@ async function saveCommunityConfig(refreshAllData, notifyBanner) {
 async function uploadNequiQRFile(file, refreshAllData, notifyBanner) {
   try {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-    const filePath = `qr-nequi-${Date.now()}.${ext}`;
+    const filePath = `qr-pago-${Date.now()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from('nequi-qr')
@@ -892,105 +789,19 @@ async function uploadNequiQRFile(file, refreshAllData, notifyBanner) {
 
     if (dbError) throw dbError;
 
-    notifyBanner('Código QR actualizado correctamente.', 'success');
+    notifyBanner('Código QR actualizado.', 'success');
     await refreshAllData();
   } catch (err) {
-    console.error("Error subiendo QR:", err);
     notifyBanner(`Error al subir QR: ${err.message || err}`, 'error');
   }
 }
 
-async function uploadLogoFile(file, refreshAllData, notifyBanner) {
-  try {
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-    const filePath = `logo-superior-${Date.now()}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('nequi-qr')
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) throw uploadError;
-
-    const { data: pubData } = supabase.storage.from('nequi-qr').getPublicUrl(filePath);
-    const { error: dbError } = await supabase
-      .from('configuracion')
-      .update({ logo_url: pubData.publicUrl })
-      .eq('id', 1);
-
-    if (dbError) throw dbError;
-
-    notifyBanner('Logotipo superior actualizado correctamente.', 'success');
-    await refreshAllData();
-  } catch (err) {
-    console.error("Error subiendo logotipo:", err);
-    notifyBanner(`Error al subir logotipo: ${err.message || err}`, 'error');
-  }
-}
-
-async function uploadHeroLogoFile(file, refreshAllData, notifyBanner) {
-  try {
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-    const filePath = `logo-central-${Date.now()}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('nequi-qr')
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) throw uploadError;
-
-    const { data: pubData } = supabase.storage.from('nequi-qr').getPublicUrl(filePath);
-    const { error: dbError } = await supabase
-      .from('configuracion')
-      .update({ hero_logo_url: pubData.publicUrl })
-      .eq('id', 1);
-
-    if (dbError) throw dbError;
-
-    notifyBanner('Logotipo central actualizado correctamente.', 'success');
-    await refreshAllData();
-  } catch (err) {
-    console.error("Error subiendo logotipo central:", err);
-    notifyBanner(`Error al subir logotipo central: ${err.message || err}`, 'error');
-  }
-}
-
 function exportInscripcionesCSV(state) {
-  const headers = [
-    'Codigo',
-    'Taller',
-    'Estado',
-    'Responsable',
-    'WhatsApp',
-    'Correo',
-    'Asistentes',
-    'Valor_Total_COP'
-  ];
-
+  const headers = ['Codigo', 'Taller', 'Estado', 'Responsable', 'WhatsApp', 'Correo', 'Participantes', 'Valor'];
   const rows = adminInscripciones.map((i) => {
     const sal = state.salidas.find((s) => s.id === i.salida_id);
-    const parts = (i.participantes || [])
-      .map((p) => {
-        const ext = Object.entries(p.extra || {})
-          .map(([k, v]) => `${k}: ${v}`)
-          .join(', ');
-        return `${p.nombre} (${p.edad} años${ext ? ' - ' + ext : ''})`;
-      })
-      .join(' | ');
-
-    return [
-      i.codigo,
-      sal?.nombre || '',
-      STATUS_NAMES[i.estado] || i.estado,
-      i.acudiente_nombre,
-      i.whatsapp,
-      i.correo,
-      parts,
-      i.total_pagar
-    ];
+    const parts = (i.participantes || []).map((p) => `${p.nombre} (${p.edad} años)`).join(' | ');
+    return [i.codigo, sal?.nombre || '', STATUS_NAMES[i.estado] || i.estado, i.acudiente_nombre, i.whatsapp, i.correo, parts, i.total_pagar];
   });
-
-  downloadCSV(`talleres-crea-inscripciones-${new Date().toISOString().slice(0, 10)}.csv`, [
-    headers,
-    ...rows
-  ]);
+  downloadCSV(`talleres-crea-inscripciones-${new Date().toISOString().slice(0, 10)}.csv`, [headers, ...rows]);
 }
