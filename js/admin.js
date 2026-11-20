@@ -357,7 +357,8 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
               <p class="form-hint">
                 ${escapeHTML(formatDateES(salida.fecha))} · ${escapeHTML(salida.hora)} · ${escapeHTML(salida.ubicacion)}<br/>
                 Valor: <strong>${salida.es_gratuita ? 'Sin costo ($0)' : formatCOP(salida.precio_familia)}</strong> ·
-                Cupos: <strong>${cupoInfo.confirmados} confirmados</strong> / ${cupoInfo.reservados} reservados (Máx. ${salida.cupo_maximo})
+                Cupos: <strong>${cupoInfo.confirmados} confirmados</strong> / ${cupoInfo.reservados} reservados (Máx. ${salida.cupo_maximo})<br/>
+                Cierre programado: <strong>${salida.fecha_cierre ? new Date(salida.fecha_cierre).toLocaleString() : 'Sin límite'}</strong>
               </p>
             </div>
             <div class="admin-salida-actions">
@@ -547,7 +548,6 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
     btn.addEventListener('click', async () => {
       if (!window.confirm('¿Deseas cancelar toda esta inscripción y liberar todos sus cupos?')) return;
       
-      // CORREGIDO: Se remueve updated_at para evitar error 400
       const { error } = await supabase
         .from('inscripciones')
         .update({ estado: 'cancelada' })
@@ -577,7 +577,6 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
           return;
         }
         
-        // CORREGIDO: Se remueve updated_at para evitar error 400
         const { error } = await supabase
           .from('inscripciones')
           .update({ estado: 'cancelada' })
@@ -594,7 +593,6 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
 
       participantesActuales.splice(partIdx, 1);
 
-      // CORREGIDO: Se remueve updated_at para evitar error 400
       const { error } = await supabase
         .from('inscripciones')
         .update({ participantes: participantesActuales })
@@ -644,6 +642,13 @@ function openSalidaModal(salida = null) {
   setVal('sal-estado', salida?.estado || 'abierta');
   setVal('sal-recomendaciones', salida?.recomendaciones || '');
   
+  if (salida?.fecha_cierre) {
+    const fechaIso = new Date(salida.fecha_cierre).toISOString().slice(0, 16);
+    setVal('sal-fecha-cierre', fechaIso);
+  } else {
+    setVal('sal-fecha-cierre', '');
+  }
+
   const chkAcudiente = document.getElementById('sal-requiere-acudiente');
   if (chkAcudiente) chkAcudiente.checked = salida ? salida.requiere_acudiente !== false : true;
 
@@ -752,6 +757,7 @@ async function saveSalidaFromModal(refreshAllData, notifyBanner) {
   const id = document.getElementById('sal-id')?.value || '';
   const esSinCosto = document.getElementById('sal-gratuita')?.checked || false;
   const incluirEdadCheckbox = document.getElementById('sal-incluir-edad');
+  const fechaCierreVal = document.getElementById('sal-fecha-cierre')?.value;
 
   const payload = {
     nombre: document.getElementById('sal-nombre')?.value.trim() || '',
@@ -765,6 +771,7 @@ async function saveSalidaFromModal(refreshAllData, notifyBanner) {
     cupo_maximo: Number(document.getElementById('sal-cupo')?.value || 20),
     estado: document.getElementById('sal-estado')?.value || 'abierta',
     recomendaciones: document.getElementById('sal-recomendaciones')?.value.trim() || '',
+    fecha_cierre: fechaCierreVal ? new Date(fechaCierreVal).toISOString() : null,
     requiere_acudiente: document.getElementById('sal-requiere-acudiente')?.checked ?? true,
     solicitar_correo: document.getElementById('sal-solicitar-correo')?.checked ?? false,
     permitir_acompanantes: false,
