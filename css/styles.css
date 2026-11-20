@@ -1337,3 +1337,19 @@ h1, h2, h3, .hero-title, .section-title, .panel-title {
     align-items: flex-start;
   }
 }
+/* Botón verde destacado para agregar participantes */
+#btn-add-participante {
+  background-color: var(--green);
+  color: #FFFFFF;
+  border-color: var(--green);
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(69, 166, 106, 0.25);
+}
+
+#btn-add-participante:hover:not(:disabled) {
+  background-color: #3b8e5a;
+  border-color: #3b8e5a;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(69, 166, 106, 0.35);
+}
