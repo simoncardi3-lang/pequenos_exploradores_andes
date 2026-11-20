@@ -1,5 +1,5 @@
 // ============================================================================
-// MÓDULO DE INSCRIPCIÓN FAMILIAR CON FORMULARIOS DINÁMICOS
+// MÓDULO DE INSCRIPCIÓN FAMILIAR CON FORMULARIOS DINÁMICOS Y HABEAS DATA
 // ============================================================================
 
 import { supabase } from './supabase.js';
@@ -143,6 +143,9 @@ export function syncInscripcionView(state) {
     }
   }
 
+  // Inyectar o asegurar el bloque de Habeas Data dinámicamente si no está en el HTML estático
+  ensureHabeasDataBox();
+
   const camposSalida = salida.campos_personalizados || [];
   participantesDraft.forEach(p => {
     if (!p.extra) p.extra = {};
@@ -167,14 +170,45 @@ export function syncInscripcionView(state) {
   }
 }
 
+function ensureHabeasDataBox() {
+  const form = document.getElementById('form-inscripcion');
+  if (!form) return;
+  if (document.getElementById('habeas-data-container')) return;
+
+  const btnSubmit = document.getElementById('btn-submit-inscripcion');
+  const div = document.createElement('div');
+  div.id = 'habeas-data-container';
+  div.className = 'consent-box';
+  div.innerHTML = `
+    <label class="checkbox-label">
+      <input type="checkbox" id="chk-habeas-data" required />
+      <span>Autorizo de manera previa, expresa e informada el tratamiento de mis datos personales y los de los menores a mi cargo para los fines logísticos, de seguridad y de comunicación de las salidas de la comunidad homeschool Pequeños Exploradores, en cumplimiento de la Ley 1581 de 2012 (Habeas Data). *</span>
+    </label>
+  `;
+
+  if (btnSubmit) {
+    form.insertBefore(div, btnSubmit);
+  } else {
+    form.appendChild(div);
+  }
+}
+
 function renderParticipantesRows(salida) {
   const container = document.getElementById('lista-participantes-form');
   if (!container) return;
 
   const camposVisibles = (salida?.campos_personalizados || []).filter((c) => c.visible !== false);
+  const incluirEdad = salida.incluir_edad !== false;
 
   container.innerHTML = participantesDraft
     .map((p, idx) => {
+      const edadHtml = incluirEdad ? `
+        <div>
+          <label class="form-label">Edad (años) *</label>
+          <input type="number" class="form-control part-edad" data-idx="${idx}" value="${escapeHTML(p.edad)}" min="0" max="18" placeholder="Ej. 8" required />
+        </div>
+      ` : '';
+
       const extraHtml = camposVisibles
         .map((campo) => {
           const val = escapeHTML(p.extra?.[campo.label] || '');
@@ -202,10 +236,7 @@ function renderParticipantesRows(salida) {
               <label class="form-label">Nombre completo del participante #${idx + 1} *</label>
               <input type="text" class="form-control part-nombre" data-idx="${idx}" value="${escapeHTML(p.nombre)}" placeholder="Nombre y apellido" required />
             </div>
-            <div>
-              <label class="form-label">Edad (años) *</label>
-              <input type="number" class="form-control part-edad" data-idx="${idx}" value="${escapeHTML(p.edad)}" min="0" max="18" placeholder="Ej. 8" required />
-            </div>
+            ${edadHtml}
           </div>
           ${extraHtml}
           <div style="margin-top:10px; text-align:right;">
@@ -253,6 +284,13 @@ async function handleInscripcionSubmit(state, onRegistrationSuccess) {
   const btnSubmit = document.getElementById('btn-submit-inscripcion');
   if (errorBox) errorBox.classList.add('hidden');
 
+  // Validar Habeas Data
+  const chkHabeas = document.getElementById('chk-habeas-data');
+  if (chkHabeas && !chkHabeas.checked) {
+    showFormError('Debes autorizar el tratamiento de datos personales (Habeas Data) para continuar.');
+    return;
+  }
+
   const salida = state.salidas.find((s) => s.id === state.selectedSalidaId);
   if (!salida) {
     showFormError('Selecciona una salida válida.');
@@ -279,15 +317,16 @@ async function handleInscripcionSubmit(state, onRegistrationSuccess) {
     return;
   }
 
+  const incluirEdad = salida.incluir_edad !== false;
   const participantesValidos = participantesDraft.map((p) => ({
     nombre: p.nombre.trim(),
-    edad: Number(p.edad),
+    edad: incluirEdad ? Number(p.edad) : 0,
     extra: p.extra || {}
   }));
 
   if (
     participantesValidos.length === 0 ||
-    participantesValidos.some((p) => !p.nombre || Number.isNaN(p.edad) || p.edad < 0)
+    participantesValidos.some((p) => !p.nombre || (incluirEdad && (Number.isNaN(p.edad) || p.edad < 0)))
   ) {
     showFormError('Completa el nombre y la edad de todos los participantes.');
     return;
@@ -369,12 +408,13 @@ function renderPaymentStep(state, salida, registro) {
     if (subtitleEl) subtitleEl.textContent = 'Guarda tu código único. Tu cupo quedará confirmado cuando el administrador verifique el pago en Nequi.';
   }
 
+  const incluirEdad = salida.incluir_edad !== false;
   const nombresParticipantes = (registro.participantes || [])
     .map((p) => {
       const extrasStr = Object.entries(p.extra || {})
         .map(([k, v]) => `${k}: ${v}`)
         .join(', ');
-      return `${p.nombre} (${p.edad} años${extrasStr ? ' - ' + extrasStr : ''})`;
+      return incluirEdad ? `${p.nombre} (${p.edad} años${extrasStr ? ' - ' + extrasStr : ''})` : `${p.nombre}${extrasStr ? ' - ' + extrasStr : ''}`;
     })
     .join('; ');
 
