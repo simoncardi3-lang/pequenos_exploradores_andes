@@ -162,7 +162,7 @@
                 <div class="form-section-head">
                   <div>
                     <h2 class="form-section-title">Detalles de Asistentes</h2>
-                    <p class="form-hint">Añade la información correspondiente a los asistentes al taller.</p>
+                    <p class="form-hint">Añade la información correspondiente al asistente o asistentes.</p>
                   </div>
                   <button type="button" id="btn-add-participante" class="btn btn-primary btn-sm">
                     + Agregar asistente
@@ -410,11 +410,11 @@
                 </div>
 
                 <div class="card-panel" style="margin-top:20px;">
-                  <h2>Logotipo Institucional</h2>
-                  <p class="form-hint">Sube la imagen (.JPG o .PNG) para la barra superior.</p>
+                  <h2>Logotipo Superior (Barra)</h2>
+                  <p class="form-hint">Sube la imagen (.JPG o .PNG) que aparecerá en la esquina superior izquierda.</p>
 
                   <div class="qr-admin-preview">
-                    <img id="admin-logo-preview-img" src="" alt="Vista previa Logotipo" class="hidden" style="max-height:80px;" />
+                    <img id="admin-logo-preview-img" src="" alt="Vista previa Logotipo Superior" class="hidden" style="max-height:80px;" />
                     <div id="admin-logo-empty" class="qr-placeholder">
                       <p>Usando emblema por defecto.</p>
                     </div>
@@ -422,11 +422,31 @@
 
                   <div class="form-group">
                     <label for="inp-logo-file" class="btn btn-outline btn-block file-upload-btn">
-                      Seleccionar Logotipo (.JPG / .PNG)
+                      Seleccionar Logotipo Superior (.JPG / .PNG)
                     </label>
                     <input type="file" id="inp-logo-file" accept="image/png,image/jpeg,image/webp" class="sr-only" />
                   </div>
-                  <button type="button" id="btn-remove-logo" class="btn btn-danger-ghost btn-sm hidden">Restaurar emblema</button>
+                  <button type="button" id="btn-remove-logo" class="btn btn-danger-ghost btn-sm hidden">Restaurar emblema superior</button>
+                </div>
+
+                <div class="card-panel" style="margin-top:20px;">
+                  <h2>Logotipo Central (Inicio)</h2>
+                  <p class="form-hint">Sube la imagen (.JPG o .PNG) que aparecerá en el centro de la tarjeta de bienvenida.</p>
+
+                  <div class="qr-admin-preview">
+                    <img id="admin-hero-logo-preview-img" src="" alt="Vista previa Logotipo Central" class="hidden" style="max-height:80px;" />
+                    <div id="admin-hero-logo-empty" class="qr-placeholder">
+                      <p>Usando emblema central por defecto.</p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="inp-hero-logo-file" class="btn btn-outline btn-block file-upload-btn">
+                      Seleccionar Logotipo Central (.JPG / .PNG)
+                    </label>
+                    <input type="file" id="inp-hero-logo-file" accept="image/png,image/jpeg,image/webp" class="sr-only" />
+                  </div>
+                  <button type="button" id="btn-remove-hero-logo" class="btn btn-danger-ghost btn-sm hidden">Restaurar emblema central</button>
                 </div>
               </div>
             </div>
@@ -509,6 +529,16 @@
           <div class="form-group">
             <label for="sal-recomendaciones" class="form-label">Recomendaciones o requisitos</label>
             <input type="text" id="sal-recomendaciones" class="form-control" placeholder="Ej. Traer portátil, bata o materiales" />
+          </div>
+        </div>
+
+        <!-- CONFIGURACIÓN DE CIERRE POR FECHA Y HORA -->
+        <div class="options-panel">
+          <h3>Cierre automático de inscripciones</h3>
+          <p class="form-hint">Selecciona la fecha y hora exacta en la que se cerrarán automáticamente las inscripciones.</p>
+          <div class="form-group">
+            <label for="sal-fecha-cierre" class="form-label">Fecha y hora límite de cierre</label>
+            <input type="datetime-local" id="sal-fecha-cierre" class="form-control" />
           </div>
         </div>
 
