@@ -1,5 +1,5 @@
 // ============================================================================
-// PANEL ADMINISTRATIVO CON CONFIGURACIÓN DE CAMPOS Y LISTAS
+// PANEL ADMINISTRATIVO CON GESTIÓN DE LOGOS, TALLERES Y PARTICIPANTES
 // ============================================================================
 
 import { supabase } from './supabase.js';
@@ -25,121 +25,187 @@ const STATUS_NAMES = {
 const ADMIN_PASSWORD_SECRET = 'Zxc$%&951';
 
 export function initAdminModule(state, refreshAllData, notifyBanner) {
-  document.getElementById('form-admin-login').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const pass = document.getElementById('admin-password').value;
-    const errBox = document.getElementById('admin-login-error');
+  const formLogin = document.getElementById('form-admin-login');
+  if (formLogin) {
+    formLogin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pass = document.getElementById('admin-password')?.value || '';
+      const errBox = document.getElementById('admin-login-error');
 
-    errBox.classList.add('hidden');
+      if (errBox) errBox.classList.add('hidden');
 
-    if (pass === ADMIN_PASSWORD_SECRET) {
-      state.adminUser = { email: 'Coordinación' };
-      localStorage.setItem('pe_admin_logged', 'true');
-      toggleAdminAuthUI(true, 'Coordinación General');
-      loadAdminData(state, refreshAllData, notifyBanner);
-    } else {
-      errBox.textContent = 'Contraseña incorrecta.';
-      errBox.classList.remove('hidden');
-    }
-  });
+      if (pass === ADMIN_PASSWORD_SECRET) {
+        state.adminUser = { email: 'Coordinación' };
+        localStorage.setItem('pe_admin_logged', 'true');
+        toggleAdminAuthUI(true, 'Coordinación General');
+        loadAdminData(state, refreshAllData, notifyBanner);
+      } else {
+        if (errBox) {
+          errBox.textContent = 'Contraseña incorrecta.';
+          errBox.classList.remove('hidden');
+        }
+      }
+    });
+  }
 
-  document.getElementById('btn-admin-logout').addEventListener('click', () => {
-    state.adminUser = null;
-    localStorage.removeItem('pe_admin_logged');
-    toggleAdminAuthUI(false);
-  });
+  const btnLogout = document.getElementById('btn-admin-logout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      state.adminUser = null;
+      localStorage.removeItem('pe_admin_logged');
+      toggleAdminAuthUI(false);
+    });
+  }
 
   document.querySelectorAll('.admin-tab').forEach((tabBtn) => {
     tabBtn.addEventListener('click', () => {
       document.querySelectorAll('.admin-tab').forEach((b) => b.classList.remove('active'));
       document.querySelectorAll('.admin-tab-panel').forEach((p) => p.classList.add('hidden'));
       tabBtn.classList.add('active');
-      document.getElementById(tabBtn.dataset.tab).classList.remove('hidden');
+      const targetPanel = document.getElementById(tabBtn.dataset.tab);
+      if (targetPanel) targetPanel.classList.remove('hidden');
     });
   });
 
-  document.getElementById('btn-nueva-salida').addEventListener('click', () => {
-    openSalidaModal(null);
-  });
+  const btnNuevaSalida = document.getElementById('btn-nueva-salida');
+  if (btnNuevaSalida) {
+    btnNuevaSalida.addEventListener('click', () => {
+      openSalidaModal(null);
+    });
+  }
 
-  document.getElementById('btn-close-modal-salida').addEventListener('click', closeSalidaModal);
-  document.getElementById('btn-cancel-modal-salida').addEventListener('click', closeSalidaModal);
+  const btnCloseModal = document.getElementById('btn-close-modal-salida');
+  if (btnCloseModal) btnCloseModal.addEventListener('click', closeSalidaModal);
 
-  document.getElementById('sal-gratuita').addEventListener('change', (e) => {
-    const precioInput = document.getElementById('sal-precio');
-    if (e.target.checked) {
-      precioInput.value = 0;
-      precioInput.disabled = true;
-    } else {
-      precioInput.disabled = false;
-      if (Number(precioInput.value) === 0) precioInput.value = 25000;
-    }
-  });
+  const btnCancelModal = document.getElementById('btn-cancel-modal-salida');
+  if (btnCancelModal) btnCancelModal.addEventListener('click', closeSalidaModal);
 
-  // PRESETS PARTICIPANTES
+  const salGratuita = document.getElementById('sal-gratuita');
+  if (salGratuita) {
+    salGratuita.addEventListener('change', (e) => {
+      const precioInput = document.getElementById('sal-precio');
+      if (!precioInput) return;
+      if (e.target.checked) {
+        precioInput.value = 0;
+        precioInput.disabled = true;
+      } else {
+        precioInput.disabled = false;
+        if (Number(precioInput.value) === 0) precioInput.value = 0;
+      }
+    });
+  }
+
   document.querySelectorAll('.chip-btn').forEach((chip) => {
     chip.addEventListener('click', () => {
-      addCustomFieldToModal(chip.dataset.preset);
+      if (chip.dataset.preset) addCustomFieldToModal(chip.dataset.preset);
     });
   });
 
-  document.getElementById('btn-agregar-campo-personalizado').addEventListener('click', () => {
-    const inp = document.getElementById('inp-nuevo-campo-nombre');
-    if (inp.value.trim()) {
-      addCustomFieldToModal(inp.value.trim());
-      inp.value = '';
-    }
-  });
+  const btnAddCampo = document.getElementById('btn-agregar-campo-personalizado');
+  if (btnAddCampo) {
+    btnAddCampo.addEventListener('click', () => {
+      const inp = document.getElementById('inp-nuevo-campo-nombre');
+      if (inp && inp.value.trim()) {
+        addCustomFieldToModal(inp.value.trim());
+        inp.value = '';
+      }
+    });
+  }
 
-  document.getElementById('form-modal-salida').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    await saveSalidaFromModal(refreshAllData, notifyBanner);
-  });
+  const formModalSalida = document.getElementById('form-modal-salida');
+  if (formModalSalida) {
+    formModalSalida.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveSalidaFromModal(refreshAllData, notifyBanner);
+    });
+  }
 
-  document.getElementById('filter-inscripcion-search').addEventListener('input', () => {
-    renderAdminInscripcionesTable(state, refreshAllData, notifyBanner);
-  });
-  document.getElementById('filter-inscripcion-salida').addEventListener('change', () => {
-    renderAdminInscripcionesTable(state, refreshAllData, notifyBanner);
-  });
-  document.getElementById('filter-inscripcion-estado').addEventListener('change', () => {
-    renderAdminInscripcionesTable(state, refreshAllData, notifyBanner);
-  });
+  const filterSearch = document.getElementById('filter-inscripcion-search');
+  if (filterSearch) {
+    filterSearch.addEventListener('input', () => {
+      renderAdminInscripcionesTable(state, refreshAllData, notifyBanner);
+    });
+  }
 
-  document.getElementById('btn-export-csv').addEventListener('click', () => {
-    exportInscripcionesCSV(state);
-  });
+  const filterSalida = document.getElementById('filter-inscripcion-salida');
+  if (filterSalida) {
+    filterSalida.addEventListener('change', () => {
+      renderAdminInscripcionesTable(state, refreshAllData, notifyBanner);
+    });
+  }
 
-  document.getElementById('form-admin-config').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    await saveCommunityConfig(refreshAllData, notifyBanner);
-  });
+  const filterEstado = document.getElementById('filter-inscripcion-estado');
+  if (filterEstado) {
+    filterEstado.addEventListener('change', () => {
+      renderAdminInscripcionesTable(state, refreshAllData, notifyBanner);
+    });
+  }
 
-  document.getElementById('inp-qr-file').addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await uploadNequiQRFile(file, refreshAllData, notifyBanner);
-    }
-  });
+  const btnExport = document.getElementById('btn-export-csv');
+  if (btnExport) {
+    btnExport.addEventListener('click', () => {
+      exportInscripcionesCSV(state);
+    });
+  }
 
-  document.getElementById('btn-remove-qr').addEventListener('click', async () => {
-    await supabase.from('configuracion').update({ qr_nequi_url: '' }).eq('id', 1);
-    await refreshAllData();
-    notifyBanner('Imagen de QR eliminada.', 'success');
-  });
+  const formConfig = document.getElementById('form-admin-config');
+  if (formConfig) {
+    formConfig.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveCommunityConfig(refreshAllData, notifyBanner);
+    });
+  }
 
-  document.getElementById('inp-logo-file').addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await uploadLogoFile(file, refreshAllData, notifyBanner);
-    }
-  });
+  const inpQr = document.getElementById('inp-qr-file');
+  if (inpQr) {
+    inpQr.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (file) await uploadNequiQRFile(file, refreshAllData, notifyBanner);
+    });
+  }
 
-  document.getElementById('btn-remove-logo').addEventListener('click', async () => {
-    await supabase.from('configuracion').update({ logo_url: '' }).eq('id', 1);
-    await refreshAllData();
-    notifyBanner('Logotipo restaurado al emblema por defecto.', 'success');
-  });
+  const btnRemQr = document.getElementById('btn-remove-qr');
+  if (btnRemQr) {
+    btnRemQr.addEventListener('click', async () => {
+      await supabase.from('configuracion').update({ qr_nequi_url: '' }).eq('id', 1);
+      await refreshAllData();
+      notifyBanner('Imagen de QR eliminada.', 'success');
+    });
+  }
+
+  const inpLogo = document.getElementById('inp-logo-file');
+  if (inpLogo) {
+    inpLogo.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (file) await uploadLogoFile(file, refreshAllData, notifyBanner);
+    });
+  }
+
+  const btnRemLogo = document.getElementById('btn-remove-logo');
+  if (btnRemLogo) {
+    btnRemLogo.addEventListener('click', async () => {
+      await supabase.from('configuracion').update({ logo_url: '' }).eq('id', 1);
+      await refreshAllData();
+      notifyBanner('Logotipo superior restaurado.', 'success');
+    });
+  }
+
+  const inpHeroLogo = document.getElementById('inp-hero-logo-file');
+  if (inpHeroLogo) {
+    inpHeroLogo.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (file) await uploadHeroLogoFile(file, refreshAllData, notifyBanner);
+    });
+  }
+
+  const btnRemHeroLogo = document.getElementById('btn-remove-hero-logo');
+  if (btnRemHeroLogo) {
+    btnRemHeroLogo.addEventListener('click', async () => {
+      await supabase.from('configuracion').update({ hero_logo_url: '' }).eq('id', 1);
+      await refreshAllData();
+      notifyBanner('Logotipo central restaurado al diseño por defecto.', 'success');
+    });
+  }
 }
 
 export function checkAdminSession(state, refreshAllData, notifyBanner) {
@@ -157,16 +223,17 @@ function toggleAdminAuthUI(isAuthenticated, email = '') {
   const loginBox = document.getElementById('admin-login-box');
   const dashBox = document.getElementById('admin-dashboard-box');
   const navBadge = document.getElementById('nav-admin-badge');
+  const emailUserEl = document.getElementById('admin-user-email');
 
   if (isAuthenticated) {
-    loginBox.classList.add('hidden');
-    dashBox.classList.remove('hidden');
-    navBadge.classList.remove('hidden');
-    document.getElementById('admin-user-email').textContent = `Sesión activa: ${email}`;
+    if (loginBox) loginBox.classList.add('hidden');
+    if (dashBox) dashBox.classList.remove('hidden');
+    if (navBadge) navBadge.classList.remove('hidden');
+    if (emailUserEl) emailUserEl.textContent = `Sesión activa: ${email}`;
   } else {
-    loginBox.classList.remove('hidden');
-    dashBox.classList.add('hidden');
-    navBadge.classList.add('hidden');
+    if (loginBox) loginBox.classList.remove('hidden');
+    if (dashBox) dashBox.classList.add('hidden');
+    if (navBadge) navBadge.classList.add('hidden');
   }
 }
 
@@ -188,7 +255,7 @@ export async function loadAdminData(state, refreshAllData, notifyBanner) {
 
   adminInscripciones = (data || []).filter((insc) => {
     if (insc.estado === 'cancelada') {
-      const tiempoCancelacion = new Date(insc.updated_at || insc.created_at).getTime();
+      const tiempoCancelacion = new Date(insc.created_at).getTime();
       if (ahora - tiempoCancelacion > TREINTA_MIN_MS) {
         return false;
       }
@@ -210,17 +277,25 @@ function renderAdminKPIs(state) {
   const confirmadas = adminInscripciones.filter((i) => i.estado === 'confirmada');
   const recaudo = confirmadas.reduce((acc, item) => acc + Number(item.valor_verificado ?? item.total_pagar ?? 0), 0);
 
-  document.getElementById('kpi-salidas').textContent = String(abiertas);
-  document.getElementById('kpi-por-verificar').textContent = String(porVerificar);
-  document.getElementById('kpi-pendientes').textContent = String(pendientes);
-  document.getElementById('kpi-confirmadas').textContent = String(confirmadas.length);
-  document.getElementById('kpi-recaudo').textContent = formatCOP(recaudo);
+  const elSalidas = document.getElementById('kpi-salidas');
+  const elPorVerificar = document.getElementById('kpi-por-verificar');
+  const elPendientes = document.getElementById('kpi-pendientes');
+  const elConfirmadas = document.getElementById('kpi-confirmadas');
+  const elRecaudo = document.getElementById('kpi-recaudo');
+
+  if (elSalidas) elSalidas.textContent = String(abiertas);
+  if (elPorVerificar) elPorVerificar.textContent = String(porVerificar);
+  if (elPendientes) elPendientes.textContent = String(pendientes);
+  if (elConfirmadas) elConfirmadas.textContent = String(confirmadas.length);
+  if (elRecaudo) elRecaudo.textContent = formatCOP(recaudo);
 }
 
 function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
   const container = document.getElementById('admin-salidas-list');
+  if (!container) return;
+
   if (state.salidas.length === 0) {
-    container.innerHTML = `<div class="state-box"><p>No has creado ninguna salida todavía. Haz clic en "+ Crear Nueva Salida".</p></div>`;
+    container.innerHTML = `<div class="state-box"><p>No has creado ningún taller todavía. Haz clic en "+ Crear Nuevo Taller".</p></div>`;
     return;
   }
 
@@ -231,27 +306,38 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
       );
 
       const cupoInfo = state.cuposMap.get(salida.id) || { reservados: 0, confirmados: 0 };
+      const incluirEdad = salida.incluir_edad !== false;
 
       const filasParticipantes = [];
       inscDeSalida.forEach((insc) => {
         (insc.participantes || []).forEach((p) => {
-          const extrasStr = Object.entries(p.extra || {})
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(' | ');
+          const pedazos = [p.nombre];
+
+          if (incluirEdad && p.edad !== undefined && p.edad !== null && p.edad !== '') {
+            pedazos.push(`${p.edad} años`);
+          }
+
+          const camposPersonalizados = salida.campos_personalizados || [];
+          camposPersonalizados.forEach((c) => {
+            if (c.incluir_al_copiar !== false && p.extra?.[c.label]) {
+              pedazos.push(p.extra[c.label]);
+            }
+          });
+
+          const lineaFormateada = pedazos.join(', ');
 
           filasParticipantes.push({
-            vistaCorta: `${p.nombre} — ${p.edad} años`,
-            lineaCompleta: `${p.nombre} — ${p.edad} años${extrasStr ? ' | ' + extrasStr : ''} | Código: ${insc.codigo} | Estado: ${STATUS_NAMES[insc.estado]}${
-              insc.acudiente_nombre && insc.acudiente_nombre !== 'Sin acudiente' ? ` | Acudiente: ${insc.acudiente_nombre}` : ''
-            }${insc.whatsapp && insc.whatsapp !== 'Sin teléfono' ? ` | WhatsApp: ${insc.whatsapp}` : ''}`
+            vistaCorta: lineaFormateada,
+            lineaCompleta: lineaFormateada
           });
         });
 
         if (salida.incluir_acudientes_lista) {
           if (insc.acudiente_nombre && insc.acudiente_nombre !== 'Sin acudiente') {
+            const acudienteTexto = `${insc.acudiente_nombre} (Responsable)`;
             filasParticipantes.push({
-              vistaCorta: `${insc.acudiente_nombre} (Acudiente)`,
-              lineaCompleta: `${insc.acudiente_nombre} (Acudiente) | Código: ${insc.codigo} | WhatsApp: ${insc.whatsapp}`
+              vistaCorta: acudienteTexto,
+              lineaCompleta: acudienteTexto
             });
           }
         }
@@ -270,7 +356,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
               <h3 style="margin:8px 0 4px;">${escapeHTML(salida.nombre)}</h3>
               <p class="form-hint">
                 ${escapeHTML(formatDateES(salida.fecha))} · ${escapeHTML(salida.hora)} · ${escapeHTML(salida.ubicacion)}<br/>
-                Valor: <strong>${salida.es_gratuita ? 'Sin costo ($0)' : formatCOP(salida.precio_familia) + ' / familia'}</strong> ·
+                Valor: <strong>${salida.es_gratuita ? 'Sin costo ($0)' : formatCOP(salida.precio_familia)}</strong> ·
                 Cupos: <strong>${cupoInfo.confirmados} confirmados</strong> / ${cupoInfo.reservados} reservados (Máx. ${salida.cupo_maximo})
               </p>
             </div>
@@ -289,7 +375,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
                 data-copy="${escapeHTML(textoCopiar)}"
                 ${filasParticipantes.length === 0 ? 'disabled' : ''}
               >
-                Copiar lista completa (1 por línea)
+                Copiar lista completa (Formato con comas)
               </button>
             </div>
             ${
@@ -297,7 +383,7 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
                 ? `<ol class="enumerated-list">${filasParticipantes
                     .map((f) => `<li>${escapeHTML(f.vistaCorta)}</li>`)
                     .join('')}</ol>`
-                : `<p class="form-hint">Aún no hay participantes inscritos en esta salida.</p>`
+                : `<p class="form-hint">Aún no hay asistentes inscritos en este taller.</p>`
             }
           </div>
         </div>
@@ -315,14 +401,14 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
   container.querySelectorAll('.btn-del-salida').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const ok = window.confirm(
-        `¿Seguro que deseas eliminar la salida "${btn.dataset.nombre}" y todas sus inscripciones asociadas?`
+        `¿Seguro que deseas eliminar el taller "${btn.dataset.nombre}" y todas sus inscripciones asociadas?`
       );
       if (!ok) return;
       const { error } = await supabase.from('salidas').delete().eq('id', btn.dataset.id);
       if (error) {
         notifyBanner(`Error al eliminar: ${error.message}`, 'error');
       } else {
-        notifyBanner('Salida eliminada correctamente.', 'success');
+        notifyBanner('Taller eliminado correctamente.', 'success');
         await refreshAllData();
       }
     });
@@ -342,9 +428,10 @@ function renderAdminSalidasAndLists(state, refreshAllData, notifyBanner) {
 
 function populateSalidaFilter(state) {
   const select = document.getElementById('filter-inscripcion-salida');
+  if (!select) return;
   const current = select.value;
   select.innerHTML =
-    `<option value="">Todas las salidas</option>` +
+    `<option value="">Todos los talleres</option>` +
     state.salidas
       .map((s) => `<option value="${escapeHTML(s.id)}">${escapeHTML(s.nombre)}</option>`)
       .join('');
@@ -353,9 +440,11 @@ function populateSalidaFilter(state) {
 
 function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
   const tbody = document.getElementById('admin-inscripciones-tbody');
-  const search = document.getElementById('filter-inscripcion-search').value.trim().toLowerCase();
-  const salidaId = document.getElementById('filter-inscripcion-salida').value;
-  const estado = document.getElementById('filter-inscripcion-estado').value;
+  if (!tbody) return;
+
+  const search = document.getElementById('filter-inscripcion-search')?.value.trim().toLowerCase() || '';
+  const salidaId = document.getElementById('filter-inscripcion-salida')?.value || '';
+  const estado = document.getElementById('filter-inscripcion-estado')?.value || '';
 
   const filtered = adminInscripciones.filter((insc) => {
     if (salidaId && insc.salida_id !== salidaId) return false;
@@ -382,25 +471,35 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
   tbody.innerHTML = filtered
     .map((insc) => {
       const salida = state.salidas.find((s) => s.id === insc.salida_id);
+      
       const partHtml = (insc.participantes || [])
-        .map((p) => {
+        .map((p, pIdx) => {
           const extrasStr = Object.entries(p.extra || {})
             .map(([k, v]) => `<div><small>${escapeHTML(k)}: ${escapeHTML(v)}</small></div>`)
             .join('');
-          return `<div>• <strong>${escapeHTML(p.nombre)}</strong> (${p.edad} años)${extrasStr}</div>`;
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px; border-bottom:1px dashed var(--border); padding-bottom:4px;">
+              <div>
+                • <strong>${escapeHTML(p.nombre)}</strong> (${p.edad} años)${extrasStr}
+              </div>
+              <button type="button" class="btn btn-danger-ghost btn-sm btn-del-single-part" data-insc-id="${escapeHTML(insc.id)}" data-part-idx="${pIdx}" title="Quitar este participante">
+                &times; Quitar
+              </button>
+            </div>
+          `;
         })
         .join('');
 
       return `
         <tr>
           <td><strong>${escapeHTML(insc.codigo)}</strong></td>
-          <td>${escapeHTML(salida?.nombre || 'Salida eliminada')}</td>
+          <td>${escapeHTML(salida?.nombre || 'Taller eliminado')}</td>
           <td>
-            ${insc.acudiente_nombre && insc.acudiente_nombre !== 'Sin acudiente' ? `<strong>${escapeHTML(insc.acudiente_nombre)}</strong><br/>` : '<span style="color:var(--text-muted);">Sin acudiente</span>'}
+            ${insc.acudiente_nombre && insc.acudiente_nombre !== 'Sin acudiente' ? `<strong>${escapeHTML(insc.acudiente_nombre)}</strong><br/>` : '<span style="color:var(--text-muted);">Sin responsable</span>'}
             ${insc.whatsapp && insc.whatsapp !== 'Sin teléfono' ? `<span>WA: ${escapeHTML(insc.whatsapp)}</span>` : ''}
             ${insc.correo ? `<br/><small>${escapeHTML(insc.correo)}</small>` : ''}
           </td>
-          <td>${partHtml}</td>
+          <td>${partHtml || '<span style="color:var(--text-muted);">Sin asistentes activos</span>'}</td>
           <td><strong>${formatCOP(insc.total_pagar)}</strong></td>
           <td>
             <span class="status-chip st-${escapeHTML(insc.estado)}">${escapeHTML(STATUS_NAMES[insc.estado] || insc.estado)}</span>
@@ -414,7 +513,7 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
               }
               ${
                 insc.estado !== 'cancelada'
-                  ? `<button type="button" class="btn btn-danger-ghost btn-sm btn-cancel-insc" data-id="${escapeHTML(insc.id)}">Cancelar</button>`
+                  ? `<button type="button" class="btn btn-danger-ghost btn-sm btn-cancel-insc" data-id="${escapeHTML(insc.id)}">Cancelar todo</button>`
                   : ''
               }
             </div>
@@ -446,10 +545,12 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
 
   tbody.querySelectorAll('.btn-cancel-insc').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!window.confirm('¿Deseas cancelar esta inscripción y liberar su cupo?')) return;
+      if (!window.confirm('¿Deseas cancelar toda esta inscripción y liberar todos sus cupos?')) return;
+      
+      // CORREGIDO: Se remueve updated_at para evitar error 400
       const { error } = await supabase
         .from('inscripciones')
-        .update({ estado: 'cancelada', updated_at: new Date().toISOString() })
+        .update({ estado: 'cancelada' })
         .eq('id', btn.dataset.id);
 
       if (error) {
@@ -460,33 +561,116 @@ function renderAdminInscripcionesTable(state, refreshAllData, notifyBanner) {
       }
     });
   });
+
+  tbody.querySelectorAll('.btn-del-single-part').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const inscId = btn.dataset.inscId;
+      const partIdx = Number(btn.dataset.partIdx);
+
+      const inscripcionActual = adminInscripciones.find(i => i.id === inscId);
+      if (!inscripcionActual) return;
+
+      const participantesActuales = [...(inscripcionActual.participantes || [])];
+      
+      if (participantesActuales.length <= 1) {
+        if (!window.confirm('Este registro solo tiene un participante. Si lo quitas, la inscripción quedará sin asistentes. ¿Deseas cancelar la inscripción completa?')) {
+          return;
+        }
+        
+        // CORREGIDO: Se remueve updated_at para evitar error 400
+        const { error } = await supabase
+          .from('inscripciones')
+          .update({ estado: 'cancelada' })
+          .eq('id', inscId);
+
+        if (error) {
+          notifyBanner(`Error al cancelar: ${error.message}`, 'error');
+        } else {
+          notifyBanner('Inscripción cancelada por quedarse sin asistentes.', 'success');
+          await refreshAllData();
+        }
+        return;
+      }
+
+      participantesActuales.splice(partIdx, 1);
+
+      // CORREGIDO: Se remueve updated_at para evitar error 400
+      const { error } = await supabase
+        .from('inscripciones')
+        .update({ participantes: participantesActuales })
+        .eq('id', inscId);
+
+      if (error) {
+        notifyBanner(`Error al quitar participante: ${error.message}`, 'error');
+      } else {
+        notifyBanner('Participante removido de la inscripción correctamente.', 'success');
+        await refreshAllData();
+      }
+    });
+  });
 }
 
 function openSalidaModal(salida = null) {
   const modal = document.getElementById('modal-salida');
-  document.getElementById('modal-salida-title').textContent = salida ? 'Editar Salida' : 'Crear Nueva Salida';
+  if (!modal) return;
 
-  document.getElementById('sal-id').value = salida?.id || '';
-  document.getElementById('sal-nombre').value = salida?.nombre || '';
-  document.getElementById('sal-descripcion').value = salida?.descripcion || '';
-  document.getElementById('sal-fecha').value = salida?.fecha || '';
-  document.getElementById('sal-hora').value = salida?.hora || '';
-  document.getElementById('sal-ubicacion').value = salida?.ubicacion || '';
-  document.getElementById('sal-punto').value = salida?.punto_encuentro || '';
+  const titleEl = document.getElementById('modal-salida-title');
+  if (titleEl) titleEl.textContent = salida ? 'Editar Taller' : 'Crear Nuevo Taller';
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  };
+
+  setVal('sal-id', salida?.id || '');
+  setVal('sal-nombre', salida?.nombre || '');
+  setVal('sal-descripcion', salida?.descripcion || '');
+  setVal('sal-fecha', salida?.fecha || '');
+  setVal('sal-hora', salida?.hora || '');
+  setVal('sal-ubicacion', salida?.ubicacion || '');
+  setVal('sal-punto', salida?.punto_encuentro || '');
 
   const esSinCosto = Boolean(salida?.es_gratuita);
-  document.getElementById('sal-gratuita').checked = esSinCosto;
-  const precioInp = document.getElementById('sal-precio');
-  precioInp.value = esSinCosto ? 0 : (salida?.precio_familia ?? 25000);
-  precioInp.disabled = esSinCosto;
+  const chkGratuita = document.getElementById('sal-gratuita');
+  if (chkGratuita) chkGratuita.checked = esSinCosto;
 
-  document.getElementById('sal-cupo').value = salida?.cupo_maximo ?? 25;
-  document.getElementById('sal-estado').value = salida?.estado || 'abierta';
-  document.getElementById('sal-recomendaciones').value = salida?.recomendaciones || '';
+  const precioInp = document.getElementById('sal-precio');
+  if (precioInp) {
+    precioInp.value = esSinCosto ? 0 : (salida?.precio_familia ?? 0);
+    precioInp.disabled = esSinCosto;
+  }
+
+  setVal('sal-cupo', salida?.cupo_maximo ?? 20);
+  setVal('sal-estado', salida?.estado || 'abierta');
+  setVal('sal-recomendaciones', salida?.recomendaciones || '');
   
-  document.getElementById('sal-requiere-acudiente').checked = salida ? salida.requiere_acudiente !== false : true;
-  document.getElementById('sal-solicitar-correo').checked = Boolean(salida?.solicitar_correo);
-  document.getElementById('sal-incluir-acudientes-lista').checked = Boolean(salida?.incluir_acudientes_lista);
+  const chkAcudiente = document.getElementById('sal-requiere-acudiente');
+  if (chkAcudiente) chkAcudiente.checked = salida ? salida.requiere_acudiente !== false : true;
+
+  const chkCorreo = document.getElementById('sal-solicitar-correo');
+  if (chkCorreo) chkCorreo.checked = Boolean(salida?.solicitar_correo);
+
+  const chkAcudLista = document.getElementById('sal-incluir-acudientes-lista');
+  if (chkAcudLista) chkAcudLista.checked = Boolean(salida?.incluir_acudientes_lista);
+
+  let incluirEdadCheckbox = document.getElementById('sal-incluir-edad');
+  if (!incluirEdadCheckbox) {
+    const optionsPanel = document.querySelector('#modal-salida .options-panel');
+    if (optionsPanel) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <label class="checkbox-label" style="margin-top:10px;">
+          <input type="checkbox" id="sal-incluir-edad" checked />
+          <span>Solicitar y registrar la edad del asistente</span>
+        </label>
+      `;
+      optionsPanel.appendChild(div);
+      incluirEdadCheckbox = document.getElementById('sal-incluir-edad');
+    }
+  }
+  if (incluirEdadCheckbox) {
+    incluirEdadCheckbox.checked = salida ? salida.incluir_edad !== false : true;
+  }
 
   modalCustomFields = Array.isArray(salida?.campos_personalizados)
     ? JSON.parse(JSON.stringify(salida.campos_personalizados))
@@ -497,28 +681,31 @@ function openSalidaModal(salida = null) {
 }
 
 function closeSalidaModal() {
-  document.getElementById('modal-salida').classList.add('hidden');
+  const modal = document.getElementById('modal-salida');
+  if (modal) modal.classList.add('hidden');
 }
 
 function addCustomFieldToModal(label) {
   if (modalCustomFields.some((f) => f.label.toLowerCase() === label.toLowerCase())) return;
-  modalCustomFields.push({ label, visible: true, required: true });
+  modalCustomFields.push({ label, visible: true, required: true, incluir_al_copiar: true });
   renderModalCustomFields();
 }
 
 function renderModalCustomFields() {
   const container = document.getElementById('modal-campos-lista');
+  if (!container) return;
+
   if (modalCustomFields.length === 0) {
-    container.innerHTML = `<p class="form-hint">No hay campos personalizados adicionales por participante.</p>`;
+    container.innerHTML = `<p class="form-hint">No hay campos personalizados adicionales por asistente.</p>`;
     return;
   }
 
   container.innerHTML = modalCustomFields
     .map(
       (f, idx) => `
-      <div class="custom-field-item">
+      <div class="custom-field-item" style="flex-wrap:wrap; gap:8px;">
         <strong>${escapeHTML(f.label)}</strong>
-        <div class="custom-field-controls">
+        <div class="custom-field-controls" style="flex-wrap:wrap; gap:12px;">
           <label class="checkbox-label">
             <input type="checkbox" class="cf-vis" data-idx="${idx}" ${f.visible !== false ? 'checked' : ''} />
             <span>Mostrar</span>
@@ -526,6 +713,10 @@ function renderModalCustomFields() {
           <label class="checkbox-label">
             <input type="checkbox" class="cf-req" data-idx="${idx}" ${f.required ? 'checked' : ''} />
             <span>Obligatorio</span>
+          </label>
+          <label class="checkbox-label" title="Marca esto si deseas que este dato aparezca en la lista copiada al portapapeles">
+            <input type="checkbox" class="cf-copy" data-idx="${idx}" ${f.incluir_al_copiar !== false ? 'checked' : ''} />
+            <span>Incluir al copiar</span>
           </label>
           <button type="button" class="btn btn-danger-ghost btn-sm cf-del" data-idx="${idx}">Quitar</button>
         </div>
@@ -544,6 +735,11 @@ function renderModalCustomFields() {
       modalCustomFields[Number(e.target.dataset.idx)].required = e.target.checked;
     });
   });
+  container.querySelectorAll('.cf-copy').forEach((chk) => {
+    chk.addEventListener('change', (e) => {
+      modalCustomFields[Number(e.target.dataset.idx)].incluir_al_copiar = e.target.checked;
+    });
+  });
   container.querySelectorAll('.cf-del').forEach((btn) => {
     btn.addEventListener('click', () => {
       modalCustomFields.splice(Number(btn.dataset.idx), 1);
@@ -553,32 +749,33 @@ function renderModalCustomFields() {
 }
 
 async function saveSalidaFromModal(refreshAllData, notifyBanner) {
-  const id = document.getElementById('sal-id').value;
-  const esSinCosto = document.getElementById('sal-gratuita').checked;
+  const id = document.getElementById('sal-id')?.value || '';
+  const esSinCosto = document.getElementById('sal-gratuita')?.checked || false;
+  const incluirEdadCheckbox = document.getElementById('sal-incluir-edad');
 
   const payload = {
-    nombre: document.getElementById('sal-nombre').value.trim(),
-    descripcion: document.getElementById('sal-descripcion').value.trim(),
-    fecha: document.getElementById('sal-fecha').value,
-    hora: document.getElementById('sal-hora').value.trim(),
-    ubicacion: document.getElementById('sal-ubicacion').value.trim(),
-    punto_encuentro: document.getElementById('sal-punto').value.trim(),
+    nombre: document.getElementById('sal-nombre')?.value.trim() || '',
+    descripcion: document.getElementById('sal-descripcion')?.value.trim() || '',
+    fecha: document.getElementById('sal-fecha')?.value || '',
+    hora: document.getElementById('sal-hora')?.value.trim() || '',
+    ubicacion: document.getElementById('sal-ubicacion')?.value.trim() || '',
+    punto_encuentro: document.getElementById('sal-punto')?.value.trim() || '',
     es_gratuita: esSinCosto,
-    precio_familia: esSinCosto ? 0 : Number(document.getElementById('sal-precio').value || 0),
-    cupo_maximo: Number(document.getElementById('sal-cupo').value || 20),
-    estado: document.getElementById('sal-estado').value,
-    recomendaciones: document.getElementById('sal-recomendaciones').value.trim(),
-    requiere_acudiente: document.getElementById('sal-requiere-acudiente').checked,
-    solicitar_correo: document.getElementById('sal-solicitar-correo').checked,
+    precio_familia: esSinCosto ? 0 : Number(document.getElementById('sal-precio')?.value || 0),
+    cupo_maximo: Number(document.getElementById('sal-cupo')?.value || 20),
+    estado: document.getElementById('sal-estado')?.value || 'abierta',
+    recomendaciones: document.getElementById('sal-recomendaciones')?.value.trim() || '',
+    requiere_acudiente: document.getElementById('sal-requiere-acudiente')?.checked ?? true,
+    solicitar_correo: document.getElementById('sal-solicitar-correo')?.checked ?? false,
     permitir_acompanantes: false,
-    incluir_acudientes_lista: document.getElementById('sal-incluir-acudientes-lista').checked,
+    incluir_acudientes_lista: document.getElementById('sal-incluir-acudientes-lista')?.checked ?? false,
+    incluir_edad: incluirEdadCheckbox ? incluirEdadCheckbox.checked : true,
     campos_personalizados: modalCustomFields,
-    campos_acompanantes: [],
-    updated_at: new Date().toISOString()
+    campos_acompanantes: []
   };
 
   const btn = document.getElementById('btn-save-salida');
-  btn.disabled = true;
+  if (btn) btn.disabled = true;
 
   try {
     const query = id
@@ -589,34 +786,38 @@ async function saveSalidaFromModal(refreshAllData, notifyBanner) {
     if (error) throw error;
 
     closeSalidaModal();
-    notifyBanner(id ? 'Salida actualizada correctamente.' : 'Nueva salida publicada.', 'success');
+    notifyBanner(id ? 'Taller actualizado correctamente.' : 'Nuevo taller publicado.', 'success');
     await refreshAllData();
   } catch (err) {
-    notifyBanner(`Error al guardar salida: ${err.message}`, 'error');
+    notifyBanner(`Error al guardar taller: ${err.message}`, 'error');
   } finally {
-    btn.disabled = false;
+    if (btn) btn.disabled = false;
   }
 }
 
 function populateConfigForm(state) {
-  document.getElementById('cfg-nombre-comunidad').value = state.config?.nombre_comunidad || 'Pequeños Exploradores';
-  document.getElementById('cfg-whatsapp').value = state.config?.whatsapp_admin || '';
-  document.getElementById('cfg-correo').value = state.config?.correo_contacto || '';
-  document.getElementById('cfg-politica').value = state.config?.politica_datos || '';
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  };
+
+  setVal('cfg-nombre-comunidad', state.config?.nombre_comunidad || 'Talleres CREA');
+  setVal('cfg-whatsapp', state.config?.whatsapp_admin || '');
+  setVal('cfg-correo', state.config?.correo_contacto || '');
+  setVal('cfg-politica', state.config?.politica_datos || '');
 
   const img = document.getElementById('admin-qr-preview-img');
   const empty = document.getElementById('admin-qr-empty');
   const btnRemove = document.getElementById('btn-remove-qr');
 
   if (state.config?.qr_nequi_url) {
-    img.src = state.config.qr_nequi_url;
-    img.classList.remove('hidden');
-    empty.classList.add('hidden');
-    btnRemove.classList.remove('hidden');
+    if (img) { img.src = state.config.qr_nequi_url; img.classList.remove('hidden'); }
+    if (empty) empty.classList.add('hidden');
+    if (btnRemove) btnRemove.classList.remove('hidden');
   } else {
-    img.classList.add('hidden');
-    empty.classList.remove('hidden');
-    btnRemove.classList.add('hidden');
+    if (img) img.classList.add('hidden');
+    if (empty) empty.classList.remove('hidden');
+    if (btnRemove) btnRemove.classList.add('hidden');
   }
 
   const logoImg = document.getElementById('admin-logo-preview-img');
@@ -624,24 +825,36 @@ function populateConfigForm(state) {
   const btnRemoveLogo = document.getElementById('btn-remove-logo');
 
   if (state.config?.logo_url) {
-    logoImg.src = state.config.logo_url;
-    logoImg.classList.remove('hidden');
-    logoEmpty.classList.add('hidden');
-    btnRemoveLogo.classList.remove('hidden');
+    if (logoImg) { logoImg.src = state.config.logo_url; logoImg.classList.remove('hidden'); }
+    if (logoEmpty) logoEmpty.classList.add('hidden');
+    if (btnRemoveLogo) btnRemoveLogo.classList.remove('hidden');
   } else {
-    logoImg.classList.add('hidden');
-    logoEmpty.classList.remove('hidden');
-    btnRemoveLogo.classList.add('hidden');
+    if (logoImg) logoImg.classList.add('hidden');
+    if (logoEmpty) logoEmpty.classList.remove('hidden');
+    if (btnRemoveLogo) btnRemoveLogo.classList.add('hidden');
+  }
+
+  const heroLogoImg = document.getElementById('admin-hero-logo-preview-img');
+  const heroLogoEmpty = document.getElementById('admin-hero-logo-empty');
+  const btnRemoveHeroLogo = document.getElementById('btn-remove-hero-logo');
+
+  if (state.config?.hero_logo_url) {
+    if (heroLogoImg) { heroLogoImg.src = state.config.hero_logo_url; heroLogoImg.classList.remove('hidden'); }
+    if (heroLogoEmpty) heroLogoEmpty.classList.add('hidden');
+    if (btnRemoveHeroLogo) btnRemoveHeroLogo.classList.remove('hidden');
+  } else {
+    if (heroLogoImg) heroLogoImg.classList.add('hidden');
+    if (heroLogoEmpty) heroLogoEmpty.classList.remove('hidden');
+    if (btnRemoveHeroLogo) btnRemoveHeroLogo.classList.add('hidden');
   }
 }
 
 async function saveCommunityConfig(refreshAllData, notifyBanner) {
   const payload = {
-    nombre_comunidad: document.getElementById('cfg-nombre-comunidad').value.trim() || 'Pequeños Exploradores',
-    whatsapp_admin: document.getElementById('cfg-whatsapp').value.trim(),
-    correo_contacto: document.getElementById('cfg-correo').value.trim(),
-    politica_datos: document.getElementById('cfg-politica').value.trim(),
-    updated_at: new Date().toISOString()
+    nombre_comunidad: document.getElementById('cfg-nombre-comunidad')?.value.trim() || 'Talleres CREA',
+    whatsapp_admin: document.getElementById('cfg-whatsapp')?.value.trim() || '',
+    correo_contacto: document.getElementById('cfg-correo')?.value.trim() || '',
+    politica_datos: document.getElementById('cfg-politica')?.value.trim() || ''
   };
 
   const { error } = await supabase.from('configuracion').update(payload).eq('id', 1);
@@ -667,12 +880,12 @@ async function uploadNequiQRFile(file, refreshAllData, notifyBanner) {
     const { data: pubData } = supabase.storage.from('nequi-qr').getPublicUrl(filePath);
     const { error: dbError } = await supabase
       .from('configuracion')
-      .update({ qr_nequi_url: pubData.publicUrl, updated_at: new Date().toISOString() })
+      .update({ qr_nequi_url: pubData.publicUrl })
       .eq('id', 1);
 
     if (dbError) throw dbError;
 
-    notifyBanner('Código QR de Nequi actualizado y visible para las familias.', 'success');
+    notifyBanner('Código QR actualizado correctamente.', 'success');
     await refreshAllData();
   } catch (err) {
     console.error("Error subiendo QR:", err);
@@ -683,7 +896,7 @@ async function uploadNequiQRFile(file, refreshAllData, notifyBanner) {
 async function uploadLogoFile(file, refreshAllData, notifyBanner) {
   try {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-    const filePath = `logo-comunidad-${Date.now()}.${ext}`;
+    const filePath = `logo-superior-${Date.now()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from('nequi-qr')
@@ -694,12 +907,12 @@ async function uploadLogoFile(file, refreshAllData, notifyBanner) {
     const { data: pubData } = supabase.storage.from('nequi-qr').getPublicUrl(filePath);
     const { error: dbError } = await supabase
       .from('configuracion')
-      .update({ logo_url: pubData.publicUrl, updated_at: new Date().toISOString() })
+      .update({ logo_url: pubData.publicUrl })
       .eq('id', 1);
 
     if (dbError) throw dbError;
 
-    notifyBanner('Logotipo de la página actualizado correctamente.', 'success');
+    notifyBanner('Logotipo superior actualizado correctamente.', 'success');
     await refreshAllData();
   } catch (err) {
     console.error("Error subiendo logotipo:", err);
@@ -707,15 +920,42 @@ async function uploadLogoFile(file, refreshAllData, notifyBanner) {
   }
 }
 
+async function uploadHeroLogoFile(file, refreshAllData, notifyBanner) {
+  try {
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+    const filePath = `logo-central-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('nequi-qr')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    const { data: pubData } = supabase.storage.from('nequi-qr').getPublicUrl(filePath);
+    const { error: dbError } = await supabase
+      .from('configuracion')
+      .update({ hero_logo_url: pubData.publicUrl })
+      .eq('id', 1);
+
+    if (dbError) throw dbError;
+
+    notifyBanner('Logotipo central actualizado correctamente.', 'success');
+    await refreshAllData();
+  } catch (err) {
+    console.error("Error subiendo logotipo central:", err);
+    notifyBanner(`Error al subir logotipo central: ${err.message || err}`, 'error');
+  }
+}
+
 function exportInscripcionesCSV(state) {
   const headers = [
     'Codigo',
-    'Salida',
+    'Taller',
     'Estado',
-    'Acudiente',
+    'Responsable',
     'WhatsApp',
     'Correo',
-    'Participantes',
+    'Asistentes',
     'Valor_Total_COP'
   ];
 
@@ -742,7 +982,7 @@ function exportInscripcionesCSV(state) {
     ];
   });
 
-  downloadCSV(`pequenos-exploradores-inscripciones-${new Date().toISOString().slice(0, 10)}.csv`, [
+  downloadCSV(`talleres-crea-inscripciones-${new Date().toISOString().slice(0, 10)}.csv`, [
     headers,
     ...rows
   ]);
