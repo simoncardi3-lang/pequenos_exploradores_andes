@@ -737,6 +737,7 @@ function populateConfigForm(state) {
   setVal('cfg-whatsapp', state.config?.whatsapp_admin || '');
   setVal('cfg-correo', state.config?.correo_contacto || '');
   setVal('cfg-politica', state.config?.politica_datos || '');
+  setVal('cfg-llave-breb', state.config?.llave_breb || '');
 
   const img = document.getElementById('admin-qr-preview-img');
   const empty = document.getElementById('admin-qr-empty');
@@ -758,7 +759,8 @@ async function saveCommunityConfig(refreshAllData, notifyBanner) {
     nombre_comunidad: document.getElementById('cfg-nombre-comunidad')?.value.trim() || 'Talleres CREA',
     whatsapp_admin: document.getElementById('cfg-whatsapp')?.value.trim() || '',
     correo_contacto: document.getElementById('cfg-correo')?.value.trim() || '',
-    politica_datos: document.getElementById('cfg-politica')?.value.trim() || ''
+    politica_datos: document.getElementById('cfg-politica')?.value.trim() || '',
+    llave_breb: document.getElementById('cfg-llave-breb')?.value.trim() || ''
   };
 
   const { error } = await supabase.from('configuracion').update(payload).eq('id', 1);
