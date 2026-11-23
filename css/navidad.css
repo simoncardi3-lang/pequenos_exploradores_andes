@@ -1,0 +1,82 @@
+/* NAVIDAD — Talleres CREA, Universidad de los Andes. Solo decoración. */
+body.navidad-activa:not(.navidad-admin) {
+  --navy: #164b39;
+  --navy-light: #216a50;
+  --blue: #bd3040;
+  --green: #23805c;
+  --yellow: #e4b84d;
+  --bg: #fffaf0;
+  --surface-alt: #f1f8f0;
+  --border: #e7dcc4;
+  background: radial-gradient(ellipse at 12% 16%, #fff1d9 0%, transparent 45%),
+              radial-gradient(ellipse at 90% 76%, #e9f5eb 0%, transparent 40%), #fffaf2;
+}
+body.navidad-activa:not(.navidad-admin) .site-header {
+  background: rgba(250, 255, 249, .97);
+  border-bottom: 1px solid #d5b566;
+  box-shadow: 0 4px 18px rgba(21, 79, 56, .09);
+}
+body.navidad-activa:not(.navidad-admin) .site-header::before {
+  content: ''; display: block; height: 5px;
+  background: repeating-linear-gradient(90deg,#b62d3d 0 45px,#e9b94b 45px 90px,#1c7755 90px 135px);
+}
+body.navidad-activa:not(.navidad-admin) .brand-eyebrow { color: #ad2e3b; }
+body.navidad-activa:not(.navidad-admin) .brand-title { color: #15553e; }
+body.navidad-activa:not(.navidad-admin) .nav-link.active { background: #176145; color: #fff; }
+body.navidad-activa:not(.navidad-admin) .hero-card {
+  border: 1px solid #dcc486; border-radius: 20px;
+  background: linear-gradient(145deg,#fff 12%,#fffdf6 65%,#eef8ef 100%);
+  box-shadow: 0 18px 46px rgba(29, 89, 61, .14);
+}
+body.navidad-activa:not(.navidad-admin) .seg-yellow { background: #e5b54c; }
+body.navidad-activa:not(.navidad-admin) .seg-red { background: #b72b3b; }
+body.navidad-activa:not(.navidad-admin) .seg-green { background: #176b4d; }
+body.navidad-activa:not(.navidad-admin) .seg-blue { background: #e5b54c; }
+body.navidad-activa:not(.navidad-admin) .hero-title { color: #17583f; }
+body.navidad-activa:not(.navidad-admin) .hero-title::before {
+  content: '🎄  ✨  🎁'; display: block; font: 26px/1.5 system-ui,sans-serif;
+  letter-spacing: 5px; margin-bottom: 9px;
+}
+body.navidad-activa:not(.navidad-admin) .tag-pill {
+  background: #fff4df; color: #8c2934; border-color: #e7cf99;
+}
+body.navidad-activa:not(.navidad-admin) .hero-about {
+  background: #eff7ed; border-top: 1px solid #e4d6b7;
+}
+body.navidad-activa:not(.navidad-admin) .btn-primary:not(:disabled) {
+  background: linear-gradient(135deg,#1a7654,#104c38);
+  border-color: #1a7654; color: white;
+  box-shadow: 0 5px 16px rgba(22,91,64,.18);
+}
+body.navidad-activa:not(.navidad-admin) .btn-primary:hover:not(:disabled) {
+  background: #a9293b; border-color: #a9293b;
+}
+body.navidad-activa:not(.navidad-admin) .salida-card,
+body.navidad-activa:not(.navidad-admin) .card-panel {
+  border: 1px solid #dfc98f; box-shadow: 0 10px 26px rgba(26,83,58,.09);
+  background: #fffefa;
+}
+body.navidad-activa:not(.navidad-admin) .salida-card { border-top: 5px solid #b72f3e; }
+body.navidad-activa:not(.navidad-admin) .section-title,
+body.navidad-activa:not(.navidad-admin) .panel-title { color: #17583f; }
+body.navidad-activa:not(.navidad-admin) .total-box {
+  background: #175a42;
+}
+body.navidad-activa:not(.navidad-admin) #btn-submit-inscripcion:not(:disabled),
+body.navidad-activa:not(.navidad-admin) #btn-add-participante:not(:disabled) {
+  background: #176b4d; border-color: #176b4d; color: white;
+}
+body.navidad-activa:not(.navidad-admin) .site-footer {
+  background: #eff8ef; border-top: 1px solid #d8bb79;
+}
+/* Luces decorativas: no bloquean clics */
+#andes-luces-navidad { position: fixed; inset: 0 0 auto; height: 26px; z-index: 45; pointer-events: none; overflow: hidden; }
+#andes-luces-navidad .andes-cable { position:absolute; top:0; left:0; right:0; height:3px; background:#24513d; }
+#andes-luces-navidad .andes-bombilla { position:absolute; top:5px; width:9px; height:14px; border-radius:50% 50% 55% 55%; background:var(--luz); box-shadow:0 0 10px 3px var(--luz); animation:andes-brillo 2.4s ease-in-out infinite alternate; animation-delay:var(--retraso); }
+@keyframes andes-brillo { from { opacity:.65; filter:brightness(.8); } to { opacity:1; filter:brightness(1.2); } }
+#andes-nieve-navidad { position:fixed; inset:0; z-index:35; overflow:hidden; pointer-events:none; }
+#andes-nieve-navidad .andes-copo { position:absolute; top:-30px; left:var(--x); font-size:var(--tam); color:#91b9b6; opacity:.42; animation:andes-nevar var(--dur) linear infinite; animation-delay:var(--delay); }
+@keyframes andes-nevar { from { transform:translate3d(0,-30px,0) rotate(0); } to { transform:translate3d(var(--deriva),110vh,0) rotate(280deg); } }
+#andes-saludo-navidad { position:fixed; bottom:18px; right:18px; z-index:46; padding:12px 18px; border:1px solid #d8b85b; border-radius:12px; background:#176145; color:white; box-shadow:0 8px 24px #174c3430; font:700 12px/1.5 'DM Sans',sans-serif; text-align:center; pointer-events:none; max-width:min(300px,calc(100vw - 36px)); }
+@media (max-width:720px) { #andes-saludo-navidad { bottom:10px; right:10px; padding:8px 12px; font-size:11px; } #andes-nieve-navidad .andes-copo:nth-child(n+17) { display:none; } }
+@media (prefers-reduced-motion:reduce) { #andes-luces-navidad .andes-bombilla, #andes-nieve-navidad .andes-copo { animation:none; } #andes-nieve-navidad { display:none; } }
