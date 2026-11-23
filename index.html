@@ -3,30 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Talleres CREA — Universidad de los Andes</title>
-  <meta name="description" content="Plataforma de inscripciones y control de asistencia para los talleres y actividades de la Universidad de los Andes." />
+  <title>Pequeños Exploradores — Comunidad Homeschool Bogotá</title>
+  <meta name="description" content="Plataforma de inscripciones y control de asistencia para las salidas de la comunidad homeschool Pequeños Exploradores en Bogotá." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./css/styles.css" />
   <link rel="stylesheet" href="./css/navidad.css" />
+
+  <script src="./js/navidad.js" defer></script>
+
   <link rel="stylesheet" href="./css/pagos.css" />
 </head>
 <body>
   <!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
   <header class="site-header">
     <div class="container header-inner">
-      <a href="#inicio" class="brand" aria-label="Inicio Talleres CREA">
+      <a href="#inicio" class="brand" aria-label="Inicio Pequeños Exploradores">
         <div id="brand-logo-slot" class="brand-logo"></div>
         <div class="brand-text">
-          <span class="brand-eyebrow">UNIVERSIDAD DE LOS ANDES</span>
-          <strong id="header-community-name" class="brand-title">Talleres CREA</strong>
+          <span class="brand-eyebrow">COMUNIDAD HOMESCHOOL BOGOTÁ</span>
+          <strong id="header-community-name" class="brand-title">Pequeños Exploradores</strong>
         </div>
       </a>
 
       <nav class="main-nav" aria-label="Navegación principal">
         <a href="#inicio" data-route="inicio" class="nav-link active">Inicio</a>
-        <a href="#salidas" data-route="salidas" class="nav-link">Talleres</a>
+        <a href="#salidas" data-route="salidas" class="nav-link">Salidas</a>
         <a href="#inscripcion" data-route="inscripcion" class="nav-link">Inscripción</a>
         <a href="#admin" data-route="admin" id="nav-admin-badge" class="nav-link nav-admin-pill hidden">Panel Admin</a>
       </nav>
@@ -51,15 +54,15 @@
 
           <div class="hero-body">
             <div id="hero-logo-slot" class="hero-emblem"></div>
-            <span class="tag-pill">UNIVERSIDAD DE LOS ANDES · BOGOTÁ</span>
-            <h1 class="hero-title">¡Espacios de creación, arte y aprendizaje!</h1>
+            <span class="tag-pill">COMUNIDAD HOMESCHOOL · BOGOTÁ, COLOMBIA</span>
+            <h1 class="hero-title">¡Aprender también es salir a explorar!</h1>
             <p class="hero-lead">
-              Inscríbete a los talleres formativos, culturales y recreativos diseñados para toda nuestra comunidad universitaria.
+              Somos una comunidad de familias homeschool que descubre nuevos lugares, comparte experiencias y aprende fuera del aula.
             </p>
 
             <div class="hero-actions">
               <a href="#salidas" class="btn btn-primary btn-lg">
-                CONSULTAR PRÓXIMOS TALLERES
+                CONSULTAR PRÓXIMAS SALIDAS
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </a>
             </div>
@@ -70,15 +73,15 @@
               <div class="about-item">
                 <span class="about-dot dot-green"></span>
                 <div>
-                  <h2>Sobre los talleres</h2>
-                  <p>Espacios abiertos de formación complementaria con cupos limitados y certificación de asistencia para los participantes.</p>
+                  <h2>Sobre nuestra comunidad</h2>
+                  <p>Reunimos a más de 200 familias educadoras en casa de Bogotá para organizar encuentros pedagógicos, culturales y en la naturaleza con cupos cuidados.</p>
                 </div>
               </div>
               <div class="about-item">
                 <span class="about-dot dot-blue"></span>
                 <div>
                   <h2>Compromiso de asistencia</h2>
-                  <p>El registro previo garantiza una adecuada planeación logística y el aprovechamiento de los materiales y espacios institucionales.</p>
+                  <p>Las inscripciones con aporte por familia o registro previo garantizan la planeación responsable con guías, espacios y cupos reales para cada jornada.</p>
                 </div>
               </div>
             </div>
@@ -87,14 +90,14 @@
       </div>
     </section>
 
-    <!-- VISTA 2: TALLERES / SALIDAS -->
+    <!-- VISTA 2: SALIDAS -->
     <section id="view-salidas" class="view-section hidden">
       <div class="container">
         <div class="section-header">
           <div>
             <span class="tag-pill">CRONOGRAMA DE ACTIVIDADES</span>
-            <h1 class="section-title">Próximos Talleres</h1>
-            <p class="section-subtitle">Consulta los detalles, salones y cupos disponibles en tiempo real.</p>
+            <h1 class="section-title">Próximas Salidas</h1>
+            <p class="section-subtitle">Consulta los detalles, punto de encuentro y cupos disponibles en tiempo real.</p>
           </div>
           <div class="realtime-indicator" title="Sincronizado en tiempo real">
             <span class="pulse-dot"></span>
@@ -104,13 +107,13 @@
 
         <div id="salidas-loading" class="state-box">
           <div class="spinner"></div>
-          <p>Cargando talleres de la Universidad de los Andes...</p>
+          <p>Cargando salidas de la comunidad...</p>
         </div>
 
         <div id="salidas-empty" class="state-box hidden">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <h3>Aún no hay talleres publicados</h3>
-          <p>La coordinación publicará pronto las nuevas actividades para la comunidad.</p>
+          <h3>Aún no hay salidas publicadas</h3>
+          <p>Los administradores publicarán pronto las próximas actividades para las familias.</p>
         </div>
 
         <div id="salidas-grid" class="salidas-grid"></div>
@@ -123,19 +126,19 @@
         <div class="back-row">
           <a href="#salidas" class="link-back">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
-            Volver a todos los talleres
+            Volver a todas las salidas
           </a>
         </div>
 
         <div id="inscripcion-form-wrapper">
           <div class="card-panel">
             <div class="panel-header">
-              <span class="tag-pill">REGISTRO INSTITUCIONAL</span>
-              <h1 class="panel-title">Inscripción a Taller</h1>
+              <span class="tag-pill">REGISTRO FAMILIAR</span>
+              <h1 class="panel-title">Inscripción a Salida</h1>
             </div>
 
             <div class="form-group">
-              <label for="select-salida-inscripcion" class="form-label">Taller seleccionado *</label>
+              <label for="select-salida-inscripcion" class="form-label">Salida seleccionada *</label>
               <select id="select-salida-inscripcion" class="form-control"></select>
             </div>
 
@@ -143,28 +146,28 @@
 
             <form id="form-inscripcion" novalidate>
               <div id="bloque-acudiente" class="form-section">
-                <h2 class="form-section-title">1. Responsable / Estudiante Principal</h2>
+                <h2 class="form-section-title">1. Adulto Responsable y Contacto</h2>
                 <div class="form-grid-2">
                   <div id="campo-acudiente-nombre-wrap" class="form-group">
-                    <label for="inp-acudiente-nombre" class="form-label">Nombre completo *</label>
-                    <input type="text" id="inp-acudiente-nombre" class="form-control" placeholder="Ej. Carlos Andrés Pérez" />
+                    <label for="inp-acudiente-nombre" class="form-label">Nombre completo del adulto responsable *</label>
+                    <input type="text" id="inp-acudiente-nombre" class="form-control" placeholder="Ej. Laura Martínez Gómez" />
                   </div>
                   <div class="form-group">
-                    <label for="inp-whatsapp" class="form-label">Número de WhatsApp / Celular *</label>
+                    <label for="inp-whatsapp" class="form-label">Número de WhatsApp *</label>
                     <input type="tel" id="inp-whatsapp" class="form-control" placeholder="Ej. 310 555 1234" />
                   </div>
                 </div>
                 <div id="campo-correo-wrap" class="form-group hidden">
-                  <label for="inp-correo" class="form-label">Correo institucional (@uniandes.edu.co) *</label>
-                  <input type="email" id="inp-correo" class="form-control" placeholder="c.perez@uniandes.edu.co" />
+                  <label for="inp-correo" class="form-label">Correo electrónico *</label>
+                  <input type="email" id="inp-correo" class="form-control" placeholder="familia@ejemplo.com" />
                 </div>
               </div>
 
               <div class="form-section">
                 <div class="form-section-head">
                   <div>
-                    <h2 class="form-section-title">Participantes o Asistentes</h2>
-                    <p class="form-hint">Añade los datos correspondientes para cada asistente.</p>
+                    <h2 class="form-section-title">Participantes (Niños o Jóvenes)</h2>
+                    <p class="form-hint">Cada participante ocupa un cupo e incluye su información correspondiente.</p>
                   </div>
                   <button type="button" id="btn-add-participante" class="btn btn-outline btn-sm">
                     + Agregar participante
@@ -175,8 +178,8 @@
 
               <div class="total-box">
                 <div>
-                  <span class="total-label">Total a pagar</span>
-                  <small id="total-nota" class="total-sub">Tarifa institucional</small>
+                  <span class="total-label">Total a pagar por la familia</span>
+                  <small id="total-nota" class="total-sub">Tarifa única familiar independiente del número de hijos</small>
                 </div>
                 <strong id="total-valor-display" class="total-amount">$0 COP</strong>
               </div>
@@ -193,9 +196,9 @@
         <div id="inscripcion-pago-wrapper" class="hidden">
           <div class="card-panel">
             <div class="success-banner">
-              <span class="code-badge" id="res-codigo">CREA-2026-0001</span>
-              <h1 class="panel-title">¡Inscripción Registrada!</h1>
-              <p id="res-subtitulo">Guarda tu código único de inscripción.</p>
+              <span class="code-badge" id="res-codigo">PE-2026-0001</span>
+              <h1 class="panel-title">¡Preinscripción Registrada!</h1>
+              <p id="res-subtitulo">Guarda tu código único. Tu cupo quedará confirmado cuando el administrador verifique el pago en Nequi.</p>
             </div>
 
             <div class="receipt-grid">
@@ -204,66 +207,74 @@
                 <strong id="res-actividad">—</strong>
               </div>
               <div class="receipt-row" id="res-acudiente-row-receipt">
-                <span>Inscrito / Responsable</span>
+                <span>Adulto responsable</span>
                 <strong id="res-acudiente">—</strong>
               </div>
               <div class="receipt-row">
-                <span>Participantes</span>
+                <span>Participantes inscritos</span>
                 <strong id="res-participantes">—</strong>
               </div>
               <div class="receipt-row receipt-total">
-                <span>Valor total</span>
+                <span>Valor total familia</span>
                 <strong id="res-total">$0 COP</strong>
               </div>
             </div>
 
-            <div id="metodos-pago" class="nequi-box">
+            <div id="selector-medios-pago" class="nequi-box hidden">
               <h2>Elige tu medio de pago</h2>
-              <div class="pago-opciones" role="group" aria-label="Medio de pago">
+              <div class="pago-opciones">
                 <button type="button" id="elegir-nequi" class="btn btn-primary" aria-pressed="true">Nequi</button>
-                <button type="button" id="elegir-breb" class="btn btn-outline" aria-pressed="false">Bre-B (llave)</button>
+                <button type="button" id="elegir-breb" class="btn btn-outline hidden" aria-pressed="false">Bre-B</button>
               </div>
             </div>
-            <div id="breb-payment-box" class="nequi-box hidden">
-              <span class="nequi-tag">TRANSFERENCIA BRE-B</span>
-              <h2>Realiza tu transferencia usando la llave</h2>
-              <p>Desde tu entidad financiera, selecciona transferir con Bre-B e ingresa esta llave:</p>
-              <p><strong id="breb-llave-visible" class="breb-llave"></strong></p>
-              <button type="button" id="btn-copiar-breb" class="btn btn-outline">Copiar llave</button>
-              <p>Comprueba el destinatario y el valor antes de transferir. Guarda el comprobante y envíalo por WhatsApp. La coordinación verificará el pago.</p>
-            </div>
+
             <div id="nequi-payment-box" class="nequi-box">
               <div class="nequi-header">
-                <span class="nequi-tag">PAGO VÍA NEQUI</span>
+                <span class="nequi-tag">PAGO POR NEQUI</span>
                 <h2>Instrucciones para completar tu aporte</h2>
               </div>
 
               <div class="nequi-layout">
                 <div class="qr-frame">
-                  <img id="nequi-qr-img" src="" alt="Código QR de Nequi" class="hidden" />
+                  <img id="nequi-qr-img" src="" alt="Código QR de Nequi Pequeños Exploradores" class="hidden" />
                   <div id="nequi-qr-placeholder" class="qr-placeholder">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    <p>QR de Nequi pendiente de configuración.</p>
+                    <p>QR de Nequi pendiente de configuración por el administrador.</p>
                   </div>
                 </div>
 
                 <ol class="nequi-steps">
                   <li><strong>Escanea el QR</strong> desde tu aplicación Nequi.</li>
-                  <li><strong>Verifica el valor</strong> exacto correspondiente.</li>
-                  <li><strong>Realiza el pago</strong> y guarda el comprobante.</li>
+                  <li><strong>Verifica el valor</strong> exacto correspondiente a tu familia.</li>
+                  <li><strong>Realiza el pago</strong> y guarda el comprobante o pantallazo.</li>
+                  <li><strong>Conserva el comprobante</strong> para adjuntarlo en el chat.</li>
                   <li><strong>Confirma la inscripción por WhatsApp</strong> usando el botón inferior.</li>
                 </ol>
               </div>
+            </div>
+
+            <div id="breb-payment-box" class="nequi-box hidden">
+              <div class="nequi-header">
+                <span class="nequi-tag">TRANSFERENCIA CON BRE-B</span>
+                <h2>Paga usando la llave Bre-B</h2>
+              </div>
+              <p>Abre tu aplicación bancaria, selecciona Bre-B y usa la siguiente llave:</p>
+              <p><strong id="breb-llave-visible" class="breb-llave"></strong></p>
+              <button type="button" id="btn-copiar-breb" class="btn btn-outline">Copiar llave</button>
+              <p>Antes de transferir, verifica el destinatario y el valor. Conserva el comprobante para enviarlo por WhatsApp.</p>
             </div>
 
             <div class="wa-action-box">
               <a id="btn-whatsapp-confirmar" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-block btn-lg">
                 CONFIRMAR PAGO POR WHATSAPP
               </a>
+              <p class="wa-disclaimer">
+                Importante: abrir WhatsApp o enviar el comprobante no marca automáticamente el pago como aprobado. Un administrador verificará el ingreso del pago por Nequi o Bre-B para confirmar tu cupo.
+              </p>
             </div>
 
             <div class="center-actions">
-              <a href="#salidas" class="btn btn-outline">Volver a Próximos Talleres</a>
+              <a href="#salidas" class="btn btn-outline">Volver a Próximas Salidas</a>
             </div>
           </div>
         </div>
@@ -276,7 +287,7 @@
         <div id="admin-login-box" class="auth-card">
           <div class="auth-header">
             <span class="tag-pill">ACCESO RESTRINGIDO</span>
-            <h1>Coordinación Talleres CREA</h1>
+            <h1>Coordinación Pequeños Exploradores</h1>
             <p>Ingresa la contraseña de seguridad para acceder al panel administrativo.</p>
           </div>
           <form id="form-admin-login">
@@ -295,7 +306,7 @@
           <div class="admin-topbar">
             <div>
               <span class="tag-pill">PANEL ADMINISTRATIVO</span>
-              <h1 class="section-title">Gestión de Talleres e Inscripciones</h1>
+              <h1 class="section-title">Gestión de Salidas e Inscripciones</h1>
               <p id="admin-user-email" class="section-subtitle">Sesión activa de coordinación</p>
             </div>
             <button type="button" id="btn-admin-logout" class="btn btn-outline btn-sm">Cerrar sesión</button>
@@ -303,7 +314,7 @@
 
           <div class="kpi-grid">
             <div class="kpi-card">
-              <span class="kpi-label">Talleres activos</span>
+              <span class="kpi-label">Salidas activas</span>
               <strong id="kpi-salidas" class="kpi-val">0</strong>
             </div>
             <div class="kpi-card">
@@ -325,15 +336,15 @@
           </div>
 
           <div class="admin-tabs" role="tablist">
-            <button type="button" class="admin-tab active" data-tab="tab-salidas">1. Talleres y Listas</button>
+            <button type="button" class="admin-tab active" data-tab="tab-salidas">1. Salidas y Listas</button>
             <button type="button" class="admin-tab" data-tab="tab-inscripciones">2. Inscripciones y Pagos</button>
-            <button type="button" class="admin-tab" data-tab="tab-config">3. QR y Configuración</button>
+            <button type="button" class="admin-tab" data-tab="tab-config">3. Medios de pago y Configuración</button>
           </div>
 
           <div id="tab-salidas" class="admin-tab-panel active">
             <div class="tab-toolbar">
-              <h2>Talleres publicados</h2>
-              <button type="button" id="btn-nueva-salida" class="btn btn-primary">+ Crear Nuevo Taller</button>
+              <h2>Actividades publicadas</h2>
+              <button type="button" id="btn-nueva-salida" class="btn btn-primary">+ Crear Nueva Salida</button>
             </div>
             <div id="admin-salidas-list" class="admin-salidas-stack"></div>
           </div>
@@ -341,9 +352,9 @@
           <div id="tab-inscripciones" class="admin-tab-panel hidden">
             <div class="tab-toolbar wrap">
               <div class="filters-row">
-                <input type="search" id="filter-inscripcion-search" class="form-control" placeholder="Buscar por código, nombre..." />
+                <input type="search" id="filter-inscripcion-search" class="form-control" placeholder="Buscar por código, acudiente o niño..." />
                 <select id="filter-inscripcion-salida" class="form-control">
-                  <option value="">Todos los talleres</option>
+                  <option value="">Todas las salidas</option>
                 </select>
                 <select id="filter-inscripcion-estado" class="form-control">
                   <option value="">Todos los estados</option>
@@ -351,6 +362,7 @@
                   <option value="pendiente_pago">Pendiente de pago</option>
                   <option value="confirmada">Confirmada</option>
                   <option value="cancelada">Cancelada</option>
+                  <option value="reembolsada">Reembolsada</option>
                 </select>
               </div>
               <button type="button" id="btn-export-csv" class="btn btn-outline">
@@ -363,9 +375,9 @@
                 <thead>
                   <tr>
                     <th>Código</th>
-                    <th>Taller</th>
-                    <th>Responsable / Contacto</th>
-                    <th>Participantes</th>
+                    <th>Salida</th>
+                    <th>Acudiente y Contacto</th>
+                    <th>Participantes y Datos</th>
                     <th>Valor</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -379,23 +391,28 @@
           <div id="tab-config" class="admin-tab-panel hidden">
             <div class="config-grid">
               <div class="card-panel">
-                <h2>Datos de la Universidad y Contacto</h2>
+                <h2>Datos de la Comunidad y WhatsApp</h2>
                 <form id="form-admin-config">
                   <div class="form-group">
-                    <label for="cfg-nombre-comunidad" class="form-label">Nombre de la dependencia</label>
+                    <label for="cfg-nombre-comunidad" class="form-label">Nombre de la comunidad</label>
                     <input type="text" id="cfg-nombre-comunidad" class="form-control" required />
                   </div>
                   <div class="form-group">
-                    <label for="cfg-whatsapp" class="form-label">Número de WhatsApp del administrador</label>
+                    <label for="cfg-whatsapp" class="form-label">Número de WhatsApp del administrador (ej. 573001234567)</label>
                     <input type="tel" id="cfg-whatsapp" class="form-control" placeholder="573001234567" />
                   </div>
                   <div class="form-group">
-                    <label for="cfg-correo" class="form-label">Correo institucional</label>
-                    <input type="email" id="cfg-correo" class="form-control" placeholder="taller@uniandes.edu.co" />
+                    <label for="cfg-correo" class="form-label">Correo de contacto institucional</label>
+                    <input type="email" id="cfg-correo" class="form-control" placeholder="contacto@pequenosexploradores.org" />
                   </div>
                   <div class="form-group">
-                    <label for="cfg-politica" class="form-label">Aviso de tratamiento de datos personales</label>
+                    <label for="cfg-politica" class="form-label">Aviso de tratamiento y conservación de datos personales</label>
                     <textarea id="cfg-politica" class="form-control" rows="3"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="cfg-llave-breb" class="form-label">Llave Bre-B para recibir pagos</label>
+                    <input type="text" id="cfg-llave-breb" class="form-control" placeholder="Ingresa tu llave Bre-B" autocomplete="off" />
+                    <p class="form-hint">Esta llave será visible para las familias. No introduzcas contraseñas ni claves bancarias.</p>
                   </div>
                   <button type="submit" id="btn-save-config" class="btn btn-primary">Guardar Configuración</button>
                 </form>
@@ -403,15 +420,11 @@
 
               <div class="config-stack">
                 <div class="card-panel">
-                  <h2>Medios de pago</h2>
-                  <div class="form-group">
-                    <label for="cfg-llave-breb" class="form-label">Llave Bre-B (opcional)</label>
-                    <input id="cfg-llave-breb" class="form-control" type="text" placeholder="Ingresa la llave real de la institución" autocomplete="off" />
-                    <p class="form-hint">Si no se configura una llave, Bre-B no aparecerá para los inscritos. Verifica que la llave corresponda al receptor autorizado.</p>
-                  </div>
-                  <h2>Código QR de Pago Nequi</h2>
+                  <h2>Código QR de Nequi</h2>
+                  <p class="form-hint">Sube la imagen oficial (.JPG o .PNG) del QR de Nequi donde las familias realizarán el pago.</p>
+
                   <div class="qr-admin-preview">
-                    <img id="admin-qr-preview-img" src="" alt="Vista previa QR" class="hidden" />
+                    <img id="admin-qr-preview-img" src="" alt="Vista previa QR Nequi" class="hidden" />
                     <div id="admin-qr-empty" class="qr-placeholder">
                       <p>No hay imagen de QR configurada todavía.</p>
                     </div>
@@ -425,6 +438,26 @@
                   </div>
                   <button type="button" id="btn-remove-qr" class="btn btn-danger-ghost btn-sm hidden">Eliminar QR actual</button>
                 </div>
+
+                <div class="card-panel" style="margin-top:20px;">
+                  <h2>Logotipo de la Página</h2>
+                  <p class="form-hint">Sube la imagen (.JPG o .PNG) que reemplazará el emblema vectorial en la barra superior y en el inicio.</p>
+
+                  <div class="qr-admin-preview">
+                    <img id="admin-logo-preview-img" src="" alt="Vista previa Logotipo" class="hidden" style="max-height:80px;" />
+                    <div id="admin-logo-empty" class="qr-placeholder">
+                      <p>Usando emblema vectorial por defecto.</p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="inp-logo-file" class="btn btn-outline btn-block file-upload-btn">
+                      Seleccionar Logotipo (.JPG / .PNG)
+                    </label>
+                    <input type="file" id="inp-logo-file" accept="image/png,image/jpeg,image/webp" class="sr-only" />
+                  </div>
+                  <button type="button" id="btn-remove-logo" class="btn btn-danger-ghost btn-sm hidden">Restaurar emblema por defecto</button>
+                </div>
               </div>
             </div>
           </div>
@@ -433,11 +466,11 @@
     </section>
   </main>
 
-  <!-- MODAL TALLER / SALIDA -->
+  <!-- MODAL SALIDA -->
   <div id="modal-salida" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-salida-title">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h2 id="modal-salida-title">Nuevo Taller</h2>
+        <h2 id="modal-salida-title">Nueva Salida</h2>
         <button type="button" id="btn-close-modal-salida" class="btn-icon" aria-label="Cerrar">&times;</button>
       </div>
 
@@ -445,13 +478,13 @@
         <input type="hidden" id="sal-id" />
 
         <div class="form-group">
-          <label for="sal-nombre" class="form-label">Nombre del taller *</label>
-          <input type="text" id="sal-nombre" class="form-control" required placeholder="Ej. Taller de Cerámica Avanzada" />
+          <label for="sal-nombre" class="form-label">Nombre de la actividad *</label>
+          <input type="text" id="sal-nombre" class="form-control" required placeholder="Ej. Exploración Botánica en el Jardín" />
         </div>
 
         <div class="form-group">
-          <label for="sal-descripcion" class="form-label">Descripción *</label>
-          <textarea id="sal-descripcion" class="form-control" rows="2" required placeholder="Descripción de la actividad..."></textarea>
+          <label for="sal-descripcion" class="form-label">Descripción de la salida *</label>
+          <textarea id="sal-descripcion" class="form-control" rows="2" required placeholder="Describe la experiencia pedagógica para las familias..."></textarea>
         </div>
 
         <div class="form-grid-2">
@@ -461,18 +494,18 @@
           </div>
           <div class="form-group">
             <label for="sal-hora" class="form-label">Hora *</label>
-            <input type="text" id="sal-hora" class="form-control" required placeholder="Ej. 2:00 p.m. - 5:00 p.m." />
+            <input type="text" id="sal-hora" class="form-control" required placeholder="Ej. 9:00 a.m. - 12:30 p.m." />
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label for="sal-ubicacion" class="form-label">Ubicación / Salón *</label>
-            <input type="text" id="sal-ubicacion" class="form-control" required placeholder="Ej. Edificio W, Salón 201" />
+            <label for="sal-ubicacion" class="form-label">Ubicación / Lugar *</label>
+            <input type="text" id="sal-ubicacion" class="form-control" required placeholder="Ej. Parque Simón Bolívar, Bogotá" />
           </div>
           <div class="form-group">
             <label for="sal-punto" class="form-label">Punto de encuentro *</label>
-            <input type="text" id="sal-punto" class="form-control" required placeholder="Ej. Plazoleta Central" />
+            <input type="text" id="sal-punto" class="form-control" required placeholder="Ej. Entrada Plaza de los Artesanos" />
           </div>
         </div>
 
@@ -480,22 +513,22 @@
           <div class="form-group">
             <label class="checkbox-label switch-box">
               <input type="checkbox" id="sal-gratuita" />
-              <span>Sin costo ($0 COP)</span>
+              <span>Visita sin costo ($0 COP)</span>
             </label>
           </div>
           <div class="form-group" id="sal-precio-group">
-            <label for="sal-precio" class="form-label">Precio (COP) *</label>
+            <label for="sal-precio" class="form-label">Precio por familia (COP) *</label>
             <input type="number" id="sal-precio" class="form-control" min="0" step="1000" value="25000" />
           </div>
           <div class="form-group">
-            <label for="sal-cupo" class="form-label">Cupo máximo *</label>
+            <label for="sal-cupo" class="form-label">Cupo máximo participantes *</label>
             <input type="number" id="sal-cupo" class="form-control" min="1" max="500" value="25" required />
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label for="sal-estado" class="form-label">Estado</label>
+            <label for="sal-estado" class="form-label">Estado de inscripción</label>
             <select id="sal-estado" class="form-control">
               <option value="abierta">Inscripciones abiertas</option>
               <option value="agotada">Cupos agotados</option>
@@ -504,8 +537,8 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="sal-recomendaciones" class="form-label">Recomendaciones</label>
-            <input type="text" id="sal-recomendaciones" class="form-control" placeholder="Ej. Traer bata o delantal" />
+            <label for="sal-recomendaciones" class="form-label">Recomendaciones y condiciones</label>
+            <input type="text" id="sal-recomendaciones" class="form-control" placeholder="Ej. Llevar hidratación, gorra y bloqueador" />
           </div>
         </div>
 
@@ -520,40 +553,48 @@
         </div>
 
         <div class="options-panel">
-          <h3>Configuración del Formulario</h3>
+          <h3>Configuración del Formulario para esta Salida</h3>
           <label class="checkbox-label">
             <input type="checkbox" id="sal-requiere-acudiente" checked />
-            <span>Requerir información del responsable / estudiante</span>
+            <span>Requerir información del acudiente (Nombre y WhatsApp)</span>
           </label>
           <label class="checkbox-label">
             <input type="checkbox" id="sal-solicitar-correo" />
-            <span>Solicitar correo institucional obligatorio</span>
+            <span>Solicitar correo electrónico del adulto responsable</span>
           </label>
           <label class="checkbox-label">
             <input type="checkbox" id="sal-incluir-acudientes-lista" />
-            <span>Incluir responsables en la lista de asistencia</span>
+            <span>Incluir acudientes en la lista enumerada de asistencia</span>
           </label>
         </div>
 
+        <!-- CONFIGURACIÓN DE CAMPOS PARA PARTICIPANTES -->
         <div class="options-panel">
-          <h3>Campos por participante</h3>
+          <div class="options-head">
+            <div>
+              <h3>Campos por participante (Niños o Jóvenes)</h3>
+              <p class="form-hint">Gestiona la edad y añade campos adicionales. Marca "Incluir al copiar" para que aparezcan en la lista formateada.</p>
+            </div>
+          </div>
+
           <div class="preset-chips">
-            <button type="button" class="chip-btn" data-preset="Código de Estudiante">+ Código de Estudiante</button>
-            <button type="button" class="chip-btn" data-preset="Facultad">+ Facultad</button>
-            <button type="button" class="chip-btn" data-preset="EPS">+ EPS</button>
+            <button type="button" class="chip-btn" data-preset="Tarjeta de Identidad">+ Tarjeta de Identidad</button>
+            <button type="button" class="chip-btn" data-preset="EPS / Seguro Médico">+ EPS</button>
+            <button type="button" class="chip-btn" data-preset="Grado / Nivel">+ Grado Homeschool</button>
+            <button type="button" class="chip-btn" data-preset="Alergias o Restricciones">+ Alergias</button>
           </div>
 
-          <div class="custom-field-adder" style="margin-top:10px;">
-            <input type="text" id="inp-nuevo-campo-nombre" class="form-control" placeholder="Campo personalizado..." />
-            <button type="button" id="btn-agregar-campo-personalizado" class="btn btn-outline btn-sm">Añadir</button>
+          <div class="custom-field-adder">
+            <input type="text" id="inp-nuevo-campo-nombre" class="form-control" placeholder="Escribe otro campo personalizado..." />
+            <button type="button" id="btn-agregar-campo-personalizado" class="btn btn-outline btn-sm">Añadir campo</button>
           </div>
 
-          <div id="modal-campos-lista" class="custom-fields-editor" style="margin-top:10px;"></div>
+          <div id="modal-campos-lista" class="custom-fields-editor"></div>
         </div>
 
         <div class="modal-footer">
           <button type="button" id="btn-cancel-modal-salida" class="btn btn-outline">Cancelar</button>
-          <button type="submit" id="btn-save-salida" class="btn btn-primary">Guardar Taller</button>
+          <button type="submit" id="btn-save-salida" class="btn btn-primary">Guardar Salida</button>
         </div>
       </form>
     </div>
@@ -562,8 +603,8 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>
-        <strong id="footer-community-name">Talleres CREA</strong>
-        <p>Universidad de los Andes · Bogotá, Colombia.</p>
+        <strong id="footer-community-name">Pequeños Exploradores</strong>
+        <p>Comunidad de familias homeschool · Bogotá, Colombia.</p>
       </div>
       <div class="footer-links">
         <span id="footer-contact-info"></span>
@@ -573,6 +614,5 @@
   </footer>
 
   <script type="module" src="./js/app.js"></script>
-  <script src="./js/navidad.js" defer></script>
 </body>
 </html>
