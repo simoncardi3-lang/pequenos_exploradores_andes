@@ -405,7 +405,7 @@ function renderPaymentStep(state, salida, registro) {
     if (subtitleEl) subtitleEl.textContent = 'Guarda tu código único. Tu cupo ha quedado confirmado exitosamente.';
   } else {
     if (titleEl) titleEl.textContent = '¡Preinscripción Registrada!';
-    if (subtitleEl) subtitleEl.textContent = 'Guarda tu código único. Tu cupo quedará confirmado cuando el administrador verifique el pago en Nequi.';
+    if (subtitleEl) subtitleEl.textContent = 'Guarda tu código único. Tu cupo quedará confirmado cuando el administrador verifique el pago por Nequi o Bre-B.';
   }
 
   const incluirEdad = salida.incluir_edad !== false;
@@ -444,13 +444,51 @@ function renderPaymentStep(state, salida, registro) {
   }
 
   const nequiBox = document.getElementById('nequi-payment-box');
+  const brebBox = document.getElementById('breb-payment-box');
+  const selector = document.getElementById('metodos-pago');
+  const llave = String(state.config?.llave_breb || '').trim();
+  const btnBreb = document.getElementById('elegir-breb');
+  const btnNequi = document.getElementById('elegir-nequi');
+  const llaveVisible = document.getElementById('breb-llave-visible');
+  if (llaveVisible) llaveVisible.textContent = llave;
+  if (btnBreb) btnBreb.classList.toggle('hidden', !llave);
+  let medioElegido = 'Nequi';
+  const actualizarMetodo = (medio) => {
+    medioElegido = medio;
+    if (nequiBox) nequiBox.classList.toggle('hidden', medio !== 'Nequi');
+    if (brebBox) brebBox.classList.toggle('hidden', medio !== 'Bre-B');
+    if (btnNequi) { btnNequi.classList.toggle('btn-primary', medio === 'Nequi'); btnNequi.classList.toggle('btn-outline', medio !== 'Nequi'); btnNequi.setAttribute('aria-pressed', String(medio === 'Nequi')); }
+    if (btnBreb) { btnBreb.classList.toggle('btn-primary', medio === 'Bre-B'); btnBreb.classList.toggle('btn-outline', medio !== 'Bre-B'); btnBreb.setAttribute('aria-pressed', String(medio === 'Bre-B')); }
+    const btnWa = document.getElementById('btn-whatsapp-confirmar');
+    if (btnWa) {
+      const phone = (state.config?.whatsapp_admin || '').replace(/\D/g, '');
+      const message = [
+        `Hola, envío comprobante de inscripción a ${state.config?.nombre_comunidad || 'Talleres CREA'}:`,
+        `Código: ${registro.codigo}`,
+        `Actividad: ${salida.nombre}`,
+        `Total: ${formatCOP(registro.total_pagar)} COP`,
+        `Medio utilizado: ${medio}. Adjunto comprobante para verificación.`
+      ].join('\n');
+      btnWa.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    }
+  };
+  if (btnNequi) btnNequi.onclick = () => actualizarMetodo('Nequi');
+  if (btnBreb) btnBreb.onclick = () => actualizarMetodo('Bre-B');
+  const copiar = document.getElementById('btn-copiar-breb');
+  if (copiar) copiar.onclick = async () => {
+    try { await navigator.clipboard.writeText(llave); copiar.textContent = 'Llave copiada'; }
+    catch { window.prompt('Copia la llave Bre-B:', llave); }
+  };
   const waActionBox = document.querySelector('.wa-action-box');
 
   if (esSinCosto) {
     if (nequiBox) nequiBox.classList.add('hidden');
+    if (brebBox) brebBox.classList.add('hidden');
+    if (selector) selector.classList.add('hidden');
     if (waActionBox) waActionBox.classList.add('hidden');
   } else {
-    if (nequiBox) nequiBox.classList.remove('hidden');
+    if (selector) selector.classList.remove('hidden');
+    actualizarMetodo('Nequi');
     if (waActionBox) waActionBox.classList.remove('hidden');
 
     const qrImg = document.getElementById('nequi-qr-img');
@@ -491,6 +529,7 @@ function renderPaymentStep(state, salida, registro) {
         }
       };
     }
+    actualizarMetodo('Nequi');
   }
 }
 
