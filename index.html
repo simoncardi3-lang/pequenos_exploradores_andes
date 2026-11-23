@@ -10,8 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./css/styles.css" />
   <link rel="stylesheet" href="./css/navidad.css" />
-  <script type="module" src="./js/app.js"></script>
-  <script src="./js/navidad.js" defer></script>
+  <link rel="stylesheet" href="./css/pagos.css" />
 </head>
 <body>
   <!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
@@ -218,6 +217,21 @@
               </div>
             </div>
 
+            <div id="metodos-pago" class="nequi-box">
+              <h2>Elige tu medio de pago</h2>
+              <div class="pago-opciones" role="group" aria-label="Medio de pago">
+                <button type="button" id="elegir-nequi" class="btn btn-primary" aria-pressed="true">Nequi</button>
+                <button type="button" id="elegir-breb" class="btn btn-outline" aria-pressed="false">Bre-B (llave)</button>
+              </div>
+            </div>
+            <div id="breb-payment-box" class="nequi-box hidden">
+              <span class="nequi-tag">TRANSFERENCIA BRE-B</span>
+              <h2>Realiza tu transferencia usando la llave</h2>
+              <p>Desde tu entidad financiera, selecciona transferir con Bre-B e ingresa esta llave:</p>
+              <p><strong id="breb-llave-visible" class="breb-llave"></strong></p>
+              <button type="button" id="btn-copiar-breb" class="btn btn-outline">Copiar llave</button>
+              <p>Comprueba el destinatario y el valor antes de transferir. Guarda el comprobante y envíalo por WhatsApp. La coordinación verificará el pago.</p>
+            </div>
             <div id="nequi-payment-box" class="nequi-box">
               <div class="nequi-header">
                 <span class="nequi-tag">PAGO VÍA NEQUI</span>
@@ -389,7 +403,13 @@
 
               <div class="config-stack">
                 <div class="card-panel">
-                  <h2>Código QR de Pago</h2>
+                  <h2>Medios de pago</h2>
+                  <div class="form-group">
+                    <label for="cfg-llave-breb" class="form-label">Llave Bre-B (opcional)</label>
+                    <input id="cfg-llave-breb" class="form-control" type="text" placeholder="Ingresa la llave real de la institución" autocomplete="off" />
+                    <p class="form-hint">Si no se configura una llave, Bre-B no aparecerá para los inscritos. Verifica que la llave corresponda al receptor autorizado.</p>
+                  </div>
+                  <h2>Código QR de Pago Nequi</h2>
                   <div class="qr-admin-preview">
                     <img id="admin-qr-preview-img" src="" alt="Vista previa QR" class="hidden" />
                     <div id="admin-qr-empty" class="qr-placeholder">
