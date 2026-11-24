@@ -364,18 +364,7 @@ async function handleInscripcionSubmit(state, onRegistrationSuccess) {
 
     if (error) throw error;
 
-    if (esSinCosto && data?.codigo) {
-      await supabase
-        .from('inscripciones')
-        .update({
-          estado: 'confirmada',
-          valor_verificado: 0,
-          fecha_verificacion: new Date().toISOString()
-        })
-        .eq('codigo', data.codigo);
-      
-      data.estado = 'confirmada';
-    }
+
 
     renderPaymentStep(state, salida, data);
     await onRegistrationSuccess();
@@ -525,7 +514,7 @@ function renderPaymentStep(state, salida, registro) {
 
       btnWa.onclick = async () => {
         if (supabase) {
-          await supabase.rpc('reportar_pago_familia', { p_codigo: registro.codigo });
+          await supabase.rpc('reportar_pago_seguro', { p_id: registro.id });
         }
       };
     }

@@ -22,9 +22,9 @@ export async function fetchPublicData() {
   }
 
   const [cfgRes, salidasRes, inscRes] = await Promise.all([
-    supabase.from('configuracion').select('*').eq('id', 1).maybeSingle(),
+    supabase.from('configuracion').select('id,nombre_comunidad,whatsapp_admin,correo_contacto,qr_nequi_url,politica_datos,logo_url,llave_breb,hero_logo_url').eq('id', 1).maybeSingle(),
     supabase.from('salidas').select('*').order('fecha', { ascending: true }),
-    supabase.from('inscripciones').select('salida_id, estado, participantes, acompanantes')
+    supabase.rpc('obtener_cupos_ocupados')
   ]);
 
   if (salidasRes.error) throw salidasRes.error;
@@ -44,17 +44,10 @@ export async function fetchPublicData() {
     cuposMap.set(s.id, { reservados: 0, confirmados: 0 });
   });
 
-  if (inscRes.data) {
-    inscRes.data.forEach((insc) => {
-      const current = cuposMap.get(insc.salida_id);
-      if (current && ['pendiente_pago', 'pago_por_verificar', 'confirmada'].includes(insc.estado)) {
-        const numPartes = Array.isArray(insc.participantes) ? insc.participantes.length : 1;
-        current.reservados += numPartes;
-        if (insc.estado === 'confirmada') {
-          current.confirmados += numPartes;
-        }
-      }
-    });
+  if (cfgRes.error) throw cfgRes.error;
+  if (inscRes.error) throw inscRes.error;
+  for (const row of inscRes.data || []) {
+    cuposMap.set(row.salida_id, {reservados: Number(row.cupos_reservados), confirmados: Number(row.cupos_confirmados)});
   }
 
   return { config, salidas, cuposMap };

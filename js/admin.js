@@ -22,40 +22,31 @@ const STATUS_NAMES = {
   reembolsada: 'Reembolsada'
 };
 
-const ADMIN_PASSWORD_SECRET = 'Zxc$%&951';
 
 export function initAdminModule(state, refreshAllData, notifyBanner) {
   const formLogin = document.getElementById('form-admin-login');
-  if (formLogin) {
-    formLogin.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const pass = document.getElementById('admin-password')?.value || '';
-      const errBox = document.getElementById('admin-login-error');
-
-      if (errBox) errBox.classList.add('hidden');
-
-      if (pass === ADMIN_PASSWORD_SECRET) {
-        state.adminUser = { email: 'Coordinación' };
-        localStorage.setItem('pe_admin_logged', 'true');
-        toggleAdminAuthUI(true, 'Coordinación General');
-        loadAdminData(state, refreshAllData, notifyBanner);
-      } else {
-        if (errBox) {
-          errBox.textContent = 'Contraseña incorrecta.';
-          errBox.classList.remove('hidden');
-        }
-      }
-    });
-  }
-
-  const btnLogout = document.getElementById('btn-admin-logout');
-  if (btnLogout) {
-    btnLogout.addEventListener('click', () => {
-      state.adminUser = null;
-      localStorage.removeItem('pe_admin_logged');
-      toggleAdminAuthUI(false);
-    });
-  }
+  formLogin?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errBox = document.getElementById('admin-login-error');
+    const button = document.getElementById('btn-admin-login');
+    errBox.classList.add('hidden'); button.disabled = true;
+    try {
+      const {error} = await supabase.auth.signInWithPassword({email: document.getElementById('admin-email').value.trim(), password: document.getElementById('admin-password').value});
+      if (error) throw error;
+      await checkAdminSession(state, refreshAllData, notifyBanner);
+      if (!state.adminUser) { await supabase.auth.signOut(); throw new Error('No autorizado'); }
+      formLogin.reset();
+    } catch { errBox.textContent = 'No fue posible iniciar sesión. Verifica tus credenciales y permisos.'; errBox.classList.remove('hidden'); }
+    finally { button.disabled = false; }
+  });
+  document.getElementById('btn-admin-logout')?.addEventListener('click', async () => {
+    const {error} = await supabase.auth.signOut();
+    if (error) { notifyBanner('No se pudo cerrar la sesión.', 'error'); return; }
+    location.reload();
+  });
+  supabase?.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') { state.adminUser = null; toggleAdminAuthUI(false); }
+  });
 
   document.querySelectorAll('.admin-tab').forEach((tabBtn) => {
     tabBtn.addEventListener('click', () => {
@@ -174,15 +165,17 @@ export function initAdminModule(state, refreshAllData, notifyBanner) {
   }
 }
 
-export function checkAdminSession(state, refreshAllData, notifyBanner) {
-  const isLogged = localStorage.getItem('pe_admin_logged') === 'true';
-  if (isLogged) {
-    state.adminUser = { email: 'Coordinación' };
-    toggleAdminAuthUI(true, 'Coordinación General');
-    loadAdminData(state, refreshAllData, notifyBanner);
-  } else {
-    toggleAdminAuthUI(false);
-  }
+export async function checkAdminSession(state, refreshAllData, notifyBanner) {
+  state.adminUser = null;
+  toggleAdminAuthUI(false);
+  if (!supabase) return;
+  const {data, error} = await supabase.auth.getUser();
+  if (error || !data.user) return;
+  const permission = await supabase.rpc('es_admin_seguro');
+  if (permission.error || permission.data !== true) return;
+  state.adminUser = data.user;
+  toggleAdminAuthUI(true, data.user.email);
+  await loadAdminData(state, refreshAllData, notifyBanner);
 }
 
 function toggleAdminAuthUI(isAuthenticated, email = '') {
